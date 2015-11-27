@@ -1,0 +1,21 @@
+application: big-goals-tracker
+version: alpha-001
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /bower_components
+  static_dir: bower_components
+- url: /images
+  static_dir: images
+- url: /
+  script: big-goals-tracker-main.app
+- url: /.*
+  script: inexistent.app
+
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest

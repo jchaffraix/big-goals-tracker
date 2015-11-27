@@ -1,0 +1,6 @@
+{
+  "name": "polymer-project",
+  "dependencies": {
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.0.0"
+  }
+}
