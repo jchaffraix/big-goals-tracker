@@ -5,6 +5,33 @@ function log(msg) {
     document.body.appendChild(document.createElement("br"));
 }
 
+function generateCounts(counts)
+{
+    // TODO: Use Polymer's template generation.
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode("Physical environment: "));
+    div.appendChild(document.createTextNode(counts["physicalCount"]));
+    div.appendChild(document.createTextNode("/25"));
+    div.appendChild(document.createElement("br"));
+
+    div.appendChild(document.createTextNode("Well being: "));
+    div.appendChild(document.createTextNode(counts["wellBeingCount"]));
+    div.appendChild(document.createTextNode("/25"));
+    div.appendChild(document.createElement("br"));
+
+    div.appendChild(document.createTextNode("Money: "));
+    div.appendChild(document.createTextNode(counts["moneyCount"]));
+    div.appendChild(document.createTextNode("/25"));
+    div.appendChild(document.createElement("br"));
+
+    div.appendChild(document.createTextNode("Relationships: "));
+    div.appendChild(document.createTextNode(counts["relationshipsCount"]));
+    div.appendChild(document.createTextNode("/25"));
+    div.appendChild(document.createElement("br"));
+
+    return div;
+}
+
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "/getold", true);
 xhr.onload = function() {
@@ -12,10 +39,13 @@ xhr.onload = function() {
         // TODO: Better error message.
         log("error while fetching data");
     } else {
-        var counts = JSON.parse(xhr.responseText);
-        console.log(counts);
-        for (key in counts) {
-            log(key + ":" + counts[key]);
+        if (xhr.responseText.length === 0) {
+            log("No data yet (did you submit your score?");
+        } else {
+            var counts = JSON.parse(xhr.responseText);
+            console.log(counts);
+            // TODO: Dump the date too.
+            document.body.appendChild(generateCounts(counts));
         }
     }
 };
