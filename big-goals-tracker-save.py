@@ -3,6 +3,7 @@ import json
 import webapp2
 
 from google.appengine.ext import ndb
+from google.appengine.api import users
 
 class Counts(ndb.Model):
     # We track when this was last modified.
@@ -51,6 +52,16 @@ class Counts(ndb.Model):
 
 class SavePage(webapp2.RequestHandler):
     def post(self):
+        user = users.get_current_user()
+        if not user:
+            self.response.status_int = 403
+            return
+
+        # TODO: Build a single point of checks.
+        if not users.is_current_user_admin():
+            self.response.status_int = 403
+            return
+
         logging.info(self.request.body)
         # The body is a JSON object containing the counts.
         # TODO: Use the users as the parent to ensure consistency per user.
