@@ -1,12 +1,11 @@
-#from google.appengine.api.logservice.logservice import logservice
-
+import logging
 import webapp2
 
 # TODO: Prettify.
 # TODO: Do a better attribution.
-# TODO: Enable logging for real.
 class ErrorPage(webapp2.RequestHandler):
     def get(self):
+        logging.error("Unknown GET URL called: %s" % self.request.url)
         self.response.write('''
 <!DOCTYPE html>
 The page you're requesting doesn't exist!<br>
@@ -14,6 +13,10 @@ The page you're requesting doesn't exist!<br>
     <img src="images/shocked-raccoon.jpg">
 </a>
 <!-- Credit: User frankieleon on flickr -->''')
+
+    def post(self):
+        logging.error("Unknown POST URL called: %s" % self.request.url)
+        self.response.status_int = 405
 
 app = webapp2.WSGIApplication([
     ('/.*', ErrorPage)
