@@ -226,7 +226,7 @@ tabs.addEventListener('iron-select', function() {
 
 // Send a JSON to the server to save the progress.
 var throttleId = null;
-var throttleTime = 0; // TODO: Switch to 20s.
+var throttleTime = 7 * 1000; // 7s
 var syncIcon = document.getElementById("syncIcon");
 function scheduleServerRequest()
 {
@@ -234,7 +234,7 @@ function scheduleServerRequest()
         return;
 
     syncIcon.setAttribute("disabled", "true");
-    throttleId = setTimeout(sendServerRequest, 0);
+    throttleId = setTimeout(sendServerRequest, throttleTime);
 }
 
 function sendServerRequest(shouldSubmit)
