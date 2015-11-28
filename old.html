@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<script>
+function log(msg) {
+    document.body.appendChild(document.createTextNode(msg));
+    document.body.appendChild(document.createElement("br"));
+}
+
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/getold", true);
+xhr.onload = function() {
+    if (xhr.status != 200) {
+        // TODO: Better error message.
+        log("error while fetching data");
+    } else {
+        var counts = JSON.parse(xhr.responseText);
+        console.log(counts);
+        for (key in counts) {
+            log(key + ":" + counts[key]);
+        }
+    }
+};
+xhr.send();
+</script>

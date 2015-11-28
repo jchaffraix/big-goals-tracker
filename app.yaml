@@ -11,7 +11,11 @@ handlers:
   static_dir: images
 - url: /
   script: big-goals-tracker-main.app
+- url: /old
+  script: big-goals-tracker-main.app
 - url: /save
+  script: big-goals-tracker-save.app
+- url: /getold
   script: big-goals-tracker-save.app
 - url: /.*
   script: inexistent.app
