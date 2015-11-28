@@ -1,37 +1,57 @@
 <!DOCTYPE html>
 <!-- Load polymer. -->
 <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+<link rel="import" href="bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
+<style>
+paper-tabs {
+    --paper-tabs-selection-bar-color: var(--default-primary-color);
+}
+</style>
 <!-- TODO: Prettify this page. -->
-<!-- TODO: Make this a better title. -->
-<h1>PHYSICAL ENVIRONMENT</h1>
-<paper-checkbox>My personal files, papers and receipts are neatly filed away.</paper-checkbox><br>
-<paper-checkbox>My car is in excellent condition. (Doesn't need mechanical work, repairs, cleaning or replacing.)</paper-checkbox><br>
-<paper-checkbox>My home is neat and clean. (Vacuumed, closets clean, desks and tables clear, furniture in good repair; windows clean)</paper-checkbox><br>
-<paper-checkbox>My appliances, machinery and equipment work well. (Refrigerator, toaster, snow-blower, water heater, toys)</paper-checkbox><br>
-<paper-checkbox>My clothes are all pressed, clean and make me look great. (No wrinkles, baskets of laundry, torn, out of date or ill-fitting clothes)</paper-checkbox><br>
-<paper-checkbox>My plants and animals are healthy. (Fed, watered, getting light and love)</paper-checkbox><br>
-<paper-checkbox>My bed/bedroom lets me have the best sleep possible. (Firm bed, light, air)</paper-checkbox><br>
-<paper-checkbox>I live in a home/apartment that I love.</paper-checkbox><br>
-<paper-checkbox>I surround myself with beautiful things.</paper-checkbox><br>
-<paper-checkbox>I live in the geographic area of my choice.</paper-checkbox><br>
-<paper-checkbox>There is ample and healthy lighting around me.</paper-checkbox><br>
-<paper-checkbox>I consistently have adequate time, space and freedom in my life.</paper-checkbox><br>
-<paper-checkbox>I am not damaged by my environment.</paper-checkbox><br>
-<paper-checkbox>I am not tolerating anything about my home or work environment.</paper-checkbox><br>
-<paper-checkbox>My work environment is productive and inspiring. (Synergistic, ample tools, and resources; no undue pressure)</paper-checkbox><br>
-<paper-checkbox>I recycle.</paper-checkbox><br>
-<paper-checkbox>I use non ozone depleting products.</paper-checkbox><br>
-<paper-checkbox>My hair is the way that I want it.</paper-checkbox><br>
-<paper-checkbox>I surround myself with music which makes my life more enjoyable.</paper-checkbox><br>
-<paper-checkbox>My bed is made daily.</paper-checkbox><br>
-<paper-checkbox>I don't injure myself, fall or bump into things.</paper-checkbox><br>
-<paper-checkbox>People feel comfortable in my home.</paper-checkbox><br>
-<paper-checkbox>I drink purified water.</paper-checkbox><br>
-<paper-checkbox>I have nothing around the house or in storage that I do not need.</paper-checkbox><br>
-<paper-checkbox>I am consistently early or easily on time.</paper-checkbox><br>
 
-<div><span id="count">0</span> out of 25</div>
+<paper-tabs selected="0">
+    <!-- TODO: Make this a better title. -->
+    <paper-tab><h1>PHYSICAL ENVIRONMENT</h1></paper-tab>
+    <paper-tab><h1>WELL-BEING</h1></paper-tab>
+</paper-tabs>
+
+<iron-pages selected="{{selected}}">
+<div>
+    <paper-checkbox>My personal files, papers and receipts are neatly filed away.</paper-checkbox><br>
+    <paper-checkbox>My car is in excellent condition. (Doesn't need mechanical work, repairs, cleaning or replacing.)</paper-checkbox><br>
+    <paper-checkbox>My home is neat and clean. (Vacuumed, closets clean, desks and tables clear, furniture in good repair; windows clean)</paper-checkbox><br>
+    <paper-checkbox>My appliances, machinery and equipment work well. (Refrigerator, toaster, snow-blower, water heater, toys)</paper-checkbox><br>
+    <paper-checkbox>My clothes are all pressed, clean and make me look great. (No wrinkles, baskets of laundry, torn, out of date or ill-fitting clothes)</paper-checkbox><br>
+    <paper-checkbox>My plants and animals are healthy. (Fed, watered, getting light and love)</paper-checkbox><br>
+    <paper-checkbox>My bed/bedroom lets me have the best sleep possible. (Firm bed, light, air)</paper-checkbox><br>
+    <paper-checkbox>I live in a home/apartment that I love.</paper-checkbox><br>
+    <paper-checkbox>I surround myself with beautiful things.</paper-checkbox><br>
+    <paper-checkbox>I live in the geographic area of my choice.</paper-checkbox><br>
+    <paper-checkbox>There is ample and healthy lighting around me.</paper-checkbox><br>
+    <paper-checkbox>I consistently have adequate time, space and freedom in my life.</paper-checkbox><br>
+    <paper-checkbox>I am not damaged by my environment.</paper-checkbox><br>
+    <paper-checkbox>I am not tolerating anything about my home or work environment.</paper-checkbox><br>
+    <paper-checkbox>My work environment is productive and inspiring. (Synergistic, ample tools, and resources; no undue pressure)</paper-checkbox><br>
+    <paper-checkbox>I recycle.</paper-checkbox><br>
+    <paper-checkbox>I use non ozone depleting products.</paper-checkbox><br>
+    <paper-checkbox>My hair is the way that I want it.</paper-checkbox><br>
+    <paper-checkbox>I surround myself with music which makes my life more enjoyable.</paper-checkbox><br>
+    <paper-checkbox>My bed is made daily.</paper-checkbox><br>
+    <paper-checkbox>I don't injure myself, fall or bump into things.</paper-checkbox><br>
+    <paper-checkbox>People feel comfortable in my home.</paper-checkbox><br>
+    <paper-checkbox>I drink purified water.</paper-checkbox><br>
+    <paper-checkbox>I have nothing around the house or in storage that I do not need.</paper-checkbox><br>
+    <paper-checkbox>I am consistently early or easily on time.</paper-checkbox><br>
+</div>
+<div>
+</div>
+</iron-pages>
+
+</template>
+
+<div><span id="count">0</span> out of 100</div>
 <script>
 var checkBoxes = document.getElementsByTagName("paper-checkbox");
 var countElement = document.getElementById("count");
@@ -48,4 +68,12 @@ function updateCount(evt)
 for (i = 0; i < checkBoxes.length; ++i) {
     checkBoxes[i].addEventListener("change", updateCount, false);
 }
+
+// Make the pages respond to the tabs.
+var pages = document.querySelector('iron-pages');
+var tabs = document.querySelector('paper-tabs');
+
+tabs.addEventListener('iron-select', function() { 
+    pages.selected = tabs.selected;
+});
 </script>
