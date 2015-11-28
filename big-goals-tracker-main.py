@@ -14,6 +14,6 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(template.render())
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
 # TODO: Should I switch to debug=False?
 ], debug=True)

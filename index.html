@@ -140,7 +140,7 @@ Physical environment: <span id="physicalEnvironmentCount">0</span> out of 25.<br
 Well being: <span id="wellBeingCount">0</span> out of 25.<br>
 Money: <span id="moneyCount">0</span> out of 25.<br>
 Relationships: <span id="relationshipsCount">0</span> out of 25.<br>
-Total count: <span id="count">0</span> out of 100
+Total count: <span id="totalCount">0</span> out of 100
 </div>
 
 <paper-icon-button icon="polymer" alt="polymer" id="syncIcon"><paper-icon-button>
@@ -151,55 +151,58 @@ Total count: <span id="count">0</span> out of 100
 -->
 
 <script>
+var counts = {
+    physicalCount: 0,
+    wellBeingCount: 0,
+    moneyCount: 0,
+    relationshipsCount: 0,
+    totalCount: 0
+};
+
 var checkBoxes = document.getElementsByTagName("paper-checkbox");
 var physicalCountElement = document.getElementById("physicalEnvironmentCount");
 var wellBeingCountElement = document.getElementById("wellBeingCount");
 var moneyCountElement = document.getElementById("moneyCount");
 var relationshipCountElement = document.getElementById("relationshipsCount");
-var countElement = document.getElementById("count");
-var physicalCount = 0;
-var wellBeingCount = 0;
-var moneyCount = 0;
-var relationshipsCount = 0;
-var count = 0;
+var countElement = document.getElementById("totalCount");
 function updateCount(evt)
 {
     var checkBox = evt.target;
     if (checkBox.hasAttribute("checked")) {
-        count++;
+        counts.totalCount++;
         if (checkBox.parentElement.id === "physicalEnvironment")
-            physicalCount++;
+            counts.physicalCount++;
         else if (checkBox.parentElement.id === "wellBeing")
-            wellBeingCount++;
+            counts.wellBeingCount++;
         else if (checkBox.parentElement.id === "money")
-            moneyCount++;
+            counts.moneyCount++;
         else if (checkBox.parentElement.id === "relationships")
-            relationshipsCount++;
+            counts.relationshipsCount++;
         else {
             // TODO: Log some error.
             alert("Doesn't work.");
         }
     } else {
-        count--;
+        counts.totalCount--;
         if (checkBox.parentElement.id === "physicalEnvironment")
-            physicalCount--;
+            counts.physicalCount--;
         else if (checkBox.parentElement.id === "wellBeing")
-            wellBeingCount--;
+            counts.wellBeingCount--;
         else if (checkBox.parentElement.id === "money")
-            moneyCount--;
+            counts.moneyCount--;
         else if (checkBox.parentElement.id === "relationships")
-            relationshipsCount--;
+            counts.relationshipsCount--;
         else {
             // TODO: Log some error.
             alert("Doesn't work.");
         }
     }
 
-    physicalCountElement.innerHTML = physicalCount;
-    wellBeingCountElement.innerHTML = wellBeingCount;
-    moneyCountElement.innerHTML = moneyCount;
-    relationshipCountElement.innerHTML = relationshipsCount;
-    countElement.innerHTML = count;
+    physicalCountElement.innerHTML = counts.physicalCount;
+    wellBeingCountElement.innerHTML = counts.wellBeingCount;
+    moneyCountElement.innerHTML = counts.moneyCount;
+    relationshipCountElement.innerHTML = counts.relationshipsCount;
+    countElement.innerHTML = counts.totalCount;
     scheduleServerRequest();
 }
 for (i = 0; i < checkBoxes.length; ++i) {
@@ -210,7 +213,7 @@ for (i = 0; i < checkBoxes.length; ++i) {
 var pages = document.querySelector('iron-pages');
 var tabs = document.querySelector('paper-tabs');
 
-tabs.addEventListener('iron-select', function() { 
+tabs.addEventListener('iron-select', function() {
     pages.selected = tabs.selected;
 });
 
@@ -229,6 +232,16 @@ function scheduleServerRequest()
 
 function sendServerRequest()
 {
-    syncIcon.removeAttribute("disabled");
+    var request = JSON.stringify(counts);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/save", true);
+    xhr.onload = function() {
+        syncIcon.removeAttribute("disabled");
+    };
+    xhr.onerror = function() {
+        // TODO: Change the color in this case, for now just return a error.
+        alert("Sync failed");
+    };
+    xhr.send(request);
 }
 </script>
