@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <!-- Load polymer. -->
 <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
 <style>
 paper-tabs {
@@ -138,7 +140,10 @@ Physical environment: <span id="physicalEnvironmentCount">0</span> out of 25.<br
 Well being: <span id="wellBeingCount">0</span> out of 25.<br>
 Money: <span id="moneyCount">0</span> out of 25.<br>
 Relationships: <span id="relationshipsCount">0</span> out of 25.<br>
-<span id="count">0</span> out of 100</div>
+Total count: <span id="count">0</span> out of 100
+</div>
+
+<paper-icon-button icon="polymer" alt="polymer" id="syncIcon"><paper-icon-button>
 
 <!-- TODO: Add the bottom navigation using paper-icon:
 <paper-icon-button icon="arrow-back" alt="arrow-back" title="arrow-back"></paper-icon-button>
@@ -195,6 +200,7 @@ function updateCount(evt)
     moneyCountElement.innerHTML = moneyCount;
     relationshipCountElement.innerHTML = relationshipsCount;
     countElement.innerHTML = count;
+    scheduleServerRequest();
 }
 for (i = 0; i < checkBoxes.length; ++i) {
     checkBoxes[i].addEventListener("change", updateCount, false);
@@ -207,4 +213,22 @@ var tabs = document.querySelector('paper-tabs');
 tabs.addEventListener('iron-select', function() { 
     pages.selected = tabs.selected;
 });
+
+// Send a JSON to the server to save the progress.
+var throttleId = null;
+var throttleTime = 0; // TODO: Switch to 20s.
+var syncIcon = document.getElementById("syncIcon");
+function scheduleServerRequest()
+{
+    if (throttleId != null)
+        return;
+
+    syncIcon.setAttribute("disabled", "true");
+    throttleId = setTimeout(sendServerRequest, 0);
+}
+
+function sendServerRequest()
+{
+    syncIcon.removeAttribute("disabled");
+}
 </script>
