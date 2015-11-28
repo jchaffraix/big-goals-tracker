@@ -232,11 +232,18 @@ function scheduleServerRequest()
 
 function sendServerRequest()
 {
+    // Clear the throttle id as we are sending the request.
+    throttleId = null;
+
     var request = JSON.stringify(counts);
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/save", true);
     xhr.onload = function() {
-        syncIcon.removeAttribute("disabled");
+        if (xhr.status != 200) {
+            alert("Sync failed" + xhr.status);
+        } else {
+            syncIcon.removeAttribute("disabled");
+        }
     };
     xhr.onerror = function() {
         // TODO: Change the color in this case, for now just return a error.
