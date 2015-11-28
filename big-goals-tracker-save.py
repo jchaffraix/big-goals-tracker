@@ -20,7 +20,7 @@ class Counts(ndb.Model):
         return ndb.Key("User", user)
 
     @classmethod
-    def saveCounts(cls, user, jsonString):
+    def saveCounts(cls, user, jsonString, shouldSubmit):
         # TODO: Do some server side validation on the input (totalCount OK, ...).
         parsedJson = json.loads(jsonString)
         #Query a previous instance to be sure.
@@ -31,7 +31,7 @@ class Counts(ndb.Model):
                             physicalCount = parsedJson["physicalCount"],
                             wellBeingCount = parsedJson["wellBeingCount"],
                             totalCount = parsedJson["totalCount"],
-                            submitted = False)
+                            submitted = shouldSubmit)
             counts.put()
         else:
             if numberOfResults > 1:
@@ -40,10 +40,12 @@ class Counts(ndb.Model):
                 # TODO: Fix the data-store if there is more than one.
             # Update the last result as it's the newest.
             counts = unsubmittedCounts[numberOfResults - 1]
-            counts.relationshipsCount = parsedJson["relationshipsCount"],
-            counts.physicalCount = parsedJson["physicalCount"],
-            counts.wellBeingCount = parsedJson["wellBeingCount"],
+            counts.relationshipsCount = parsedJson["relationshipsCount"]
+            counts.physicalCount = parsedJson["physicalCount"]
+            counts.wellBeingCount = parsedJson["wellBeingCount"]
             counts.totalCount = parsedJson["totalCount"]
+            if (shouldSubmit):
+                counts.submitted = True
             counts.put()
 
 
@@ -53,7 +55,10 @@ class SavePage(webapp2.RequestHandler):
         # The body is a JSON object containing the counts.
         # TODO: Use the users as the parent to ensure consistency per user.
         user = "Fooo"
-        Counts.saveCounts(user, self.request.body)
+        shouldSubmit = False;
+        if (self.request.get('submit')):
+            shouldSubmit = True
+        Counts.saveCounts(user, self.request.body, shouldSubmit)
         self.response.write("Not implemented")
 
 app = webapp2.WSGIApplication([

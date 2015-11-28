@@ -6,9 +6,13 @@
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
-<style>
+<style is="custom-style">
 paper-tabs {
     --paper-tabs-selection-bar-color: var(--default-primary-color);
+}
+
+paper-tab {
+    --paper-tab-ink: var(--default-primary-color);
 }
 </style>
 <!-- TODO: Prettify this page. -->
@@ -143,7 +147,7 @@ Relationships: <span id="relationshipsCount">0</span> out of 25.<br>
 Total count: <span id="totalCount">0</span> out of 100
 </div>
 
-<paper-icon-button icon="polymer" alt="polymer" id="syncIcon"><paper-icon-button>
+<paper-icon-button icon="polymer" alt="polymer" id="syncIcon"></paper-icon-button>
 
 <!-- TODO: Add the bottom navigation using paper-icon:
 <paper-icon-button icon="arrow-back" alt="arrow-back" title="arrow-back"></paper-icon-button>
@@ -197,7 +201,10 @@ function updateCount(evt)
             alert("Doesn't work.");
         }
     }
-
+    updateCountsValues();
+}
+function updateCountsValues()
+{
     physicalCountElement.innerHTML = counts.physicalCount;
     wellBeingCountElement.innerHTML = counts.wellBeingCount;
     moneyCountElement.innerHTML = counts.moneyCount;
@@ -230,18 +237,31 @@ function scheduleServerRequest()
     throttleId = setTimeout(sendServerRequest, 0);
 }
 
-function sendServerRequest()
+function sendServerRequest(shouldSubmit)
 {
     // Clear the throttle id as we are sending the request.
     throttleId = null;
 
     var request = JSON.stringify(counts);
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/save", true);
+    var url = "/save";
+    if (shouldSubmit === true)
+        url += "?submit=true";
+    xhr.open("POST", url, true);
     xhr.onload = function() {
         if (xhr.status != 200) {
             alert("Sync failed" + xhr.status);
         } else {
+            if (shouldSubmit) {
+                counts.physicalCount = 0;
+                counts.wellBeingCount = 0;
+                counts.moneyCount = 0;
+                counts.relationshipsCount = 0;
+                counts.totalCount = 0;
+                updateCountsValues();
+                for (i = 0; i < checkBoxes.length; ++i)
+                    checkBoxes[i].removeAttribute("checked");
+            }
             syncIcon.removeAttribute("disabled");
         }
     };
@@ -251,4 +271,11 @@ function sendServerRequest()
     };
     xhr.send(request);
 }
+
+//TODO: We send an empty save after submit.
+function submitData()
+{
+    sendServerRequest(true);
+}
+syncIcon.addEventListener("click", submitData, false);
 </script>
