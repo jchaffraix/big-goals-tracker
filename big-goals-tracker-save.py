@@ -2,6 +2,8 @@ import logging
 import json
 import webapp2
 
+from authentication import *
+
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
@@ -66,13 +68,8 @@ class Counts(ndb.Model):
 
 class SavePage(webapp2.RequestHandler):
     def post(self):
-        user = users.get_current_user()
+        user = Authentication.userIfAllowed()
         if not user:
-            self.response.status_int = 403
-            return
-
-        # TODO: Build a single point of checks.
-        if not users.is_current_user_admin():
             self.response.status_int = 403
             return
 
@@ -88,13 +85,8 @@ class SavePage(webapp2.RequestHandler):
 
 class GetOldPage(webapp2.RequestHandler):
     def get(self):
-        user = users.get_current_user()
+        user = Authentication.userIfAllowed()
         if not user:
-            self.response.status_int = 403
-            return
-
-        # TODO: Build a single point of checks.
-        if not users.is_current_user_admin():
             self.response.status_int = 403
             return
 
