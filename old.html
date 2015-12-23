@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- TODO: Prettify for real. -->
 <script>
 function log(msg) {
     document.body.appendChild(document.createTextNode(msg));
@@ -9,6 +10,10 @@ function generateCounts(counts)
 {
     // TODO: Use Polymer's template generation.
     var div = document.createElement("div");
+    div.appendChild(document.createTextNode("Submitted date: "));
+    div.appendChild(document.createTextNode(counts["updatedDate"]));
+    div.appendChild(document.createElement("br"));
+
     div.appendChild(document.createTextNode("Physical environment: "));
     div.appendChild(document.createTextNode(counts["physicalCount"]));
     div.appendChild(document.createTextNode("/25"));
@@ -29,6 +34,15 @@ function generateCounts(counts)
     div.appendChild(document.createTextNode("/25"));
     div.appendChild(document.createElement("br"));
 
+    div.appendChild(document.createElement("br"));
+    div.appendChild(document.createTextNode("TotalCount: "));
+    div.appendChild(document.createTextNode(counts["totalCount"]));
+    div.appendChild(document.createTextNode("/100"));
+    div.appendChild(document.createElement("br"));
+
+    div.appendChild(document.createElement("br"));
+    div.appendChild(document.createElement("br"));
+
     return div;
 }
 
@@ -40,12 +54,13 @@ xhr.onload = function() {
         log("error while fetching data");
     } else {
         if (xhr.responseText.length === 0) {
-            log("No data yet (did you submit your score?");
+            log("No data yet (did you submit your score?)");
         } else {
-            var counts = JSON.parse(xhr.responseText);
-            console.log(counts);
-            // TODO: Dump the date too.
-            document.body.appendChild(generateCounts(counts));
+            var counts = JSON.parse(xhr.responseText)["logs"];
+            for (var i in counts) {
+                console.log(counts[i]);
+                document.body.appendChild(generateCounts(counts[i]));
+            }
         }
     }
 };

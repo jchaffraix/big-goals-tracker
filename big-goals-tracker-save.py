@@ -20,7 +20,7 @@ class Counts(ndb.Model):
     submitted = ndb.BooleanProperty()
 
     def toJSON(self):
-        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d}' % (self.physicalCount, self.wellBeingCount, self.moneyCount, self.relationshipsCount, self.totalCount)
+        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (self.physicalCount, self.wellBeingCount, self.moneyCount, self.relationshipsCount, self.totalCount, self.updatedDate)
 
     @classmethod
     def ancestorKey(cls, user):
@@ -28,8 +28,8 @@ class Counts(ndb.Model):
 
     # TODO: Consolidate the querying logic to avoid parent/ancestor discrepancies.
     @classmethod
-    def getLatestSubmittedEntry(cls, user):
-        return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == True).order(-cls.updatedDate).fetch(1)
+    def getLatestSubmittedEntries(cls, user):
+        return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == True).order(-cls.updatedDate).fetch(25)
 
     @classmethod
     def saveCounts(cls, user, jsonString, shouldSubmit):
@@ -91,17 +91,19 @@ class GetOldPage(webapp2.RequestHandler):
             return
 
         logging.info("Requesting info for user: %s" % user.email())
-        log = Counts.getLatestSubmittedEntry(user.email())
-        if len(log) is 0:
+        logs = Counts.getLatestSubmittedEntries(user.email())
+        if len(logs) is 0:
             logging.error("Not old data queried.");
-        elif len(log) > 1:
-            logging.error("Requested one submitted entry, got %d!!!." % len(log));
-            self.response.status_int = 500
         else:
-            logging.info(log[0])
-            jsonifiedLog = log[0].toJSON()
-            logging.info(jsonifiedLog)
-            self.response.write(jsonifiedLog)
+            jsonifiedLogs = '{"logs":['
+            for i in range(0, len(logs)):
+                log = logs[i]
+                logging.info(log)
+                jsonifiedLogs += log.toJSON()
+                if i != len(logs) - 1:
+                    jsonifiedLogs += ","
+            jsonifiedLogs += ']}'
+            self.response.write(jsonifiedLogs)
 
 app = webapp2.WSGIApplication([
     ('/save', SavePage),
