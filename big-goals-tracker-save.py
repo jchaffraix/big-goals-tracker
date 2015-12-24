@@ -1,11 +1,45 @@
 import logging
+import hashlib
 import json
+import os
 import webapp2
 
 from authentication import *
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
+
+class EmailSalt(ndb.Model):
+    salt = ndb.BlobProperty(indexed = False, required = True)
+
+    @classmethod
+    def ancestorKey(cls, user):
+        return ndb.Key("UserEmail", user.user_id())
+
+    @classmethod
+    def getSalt(cls, user):
+        existingSalt = cls.query(ancestor = EmailSalt.ancestorKey(user)).fetch(10)
+        if len(existingSalt) > 1:
+            raise Exception("Several salts are store for email" + user + ", data corruption is about to happen.")
+        elif len(existingSalt) == 0:
+            # We need to create the salt. We use the cryptographically secure os.urandom to do so.
+            # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
+            # So we settled for 32 bits.
+            new_salt = os.urandom(32)
+            existingSalt = EmailSalt(parent = EmailSalt.ancestorKey(user),
+                                     salt = new_salt)
+            existingSalt.put()
+            return new_salt
+        else:
+            return existingSalt[0].salt
+
+    @classmethod
+    def hashForUser(cls, user):
+        salt = EmailSalt.getSalt(user)
+        salted_id = salt + user.user_id()
+        hash_id = hashlib.sha256(salted_id).hexdigest()
+        return hash_id
+
 
 class Counts(ndb.Model):
     # We track when this was last modified.
@@ -23,8 +57,8 @@ class Counts(ndb.Model):
         return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (self.physicalCount, self.wellBeingCount, self.moneyCount, self.relationshipsCount, self.totalCount, self.updatedDate)
 
     @classmethod
-    def ancestorKey(cls, user):
-        return ndb.Key("User", user)
+    def ancestorKey(cls, email):
+        return ndb.Key("UserEmailHash", EmailSalt.hashForUser(email))
 
     # TODO: Consolidate the querying logic to avoid parent/ancestor discrepancies.
     @classmethod
@@ -50,8 +84,10 @@ class Counts(ndb.Model):
             counts.put()
         else:
             if numberOfResults > 1:
+                # TODO: Email is not necessarily populated and we use user_id()
+                # in the rest of the code. Should this be changed too?
                 logging.error("Found %d unsubmitted request for user %s, hell is loose"
-                            % (numberOfResults, user))
+                            % (numberOfResults, user.email()))
                 # TODO: Fix the data-store if there is more than one.
             # Update the last result as it's the newest.
             counts = unsubmittedCounts[numberOfResults - 1]
@@ -79,8 +115,7 @@ class SavePage(webapp2.RequestHandler):
         if (self.request.get('submit')):
             shouldSubmit = True
         logging.info("ShouldSubmit: %s" % shouldSubmit)
-        # TODO: Hash and salt the user email.
-        Counts.saveCounts(user.email(), self.request.body, shouldSubmit)
+        Counts.saveCounts(user, self.request.body, shouldSubmit)
         self.response.write("Not implemented")
 
 class GetOldPage(webapp2.RequestHandler):
@@ -91,7 +126,7 @@ class GetOldPage(webapp2.RequestHandler):
             return
 
         logging.info("Requesting info for user: %s" % user.email())
-        logs = Counts.getLatestSubmittedEntries(user.email())
+        logs = Counts.getLatestSubmittedEntries(user)
         if len(logs) is 0:
             logging.error("Not old data queried.");
         else:
