@@ -9,6 +9,10 @@ from authentication import *
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
+# This class stores the salt associated with a user.
+# While this is not strictly required as we don't store sensitive
+# information such as some passwords or the email itself, this hardens
+# the datastore against finding out who uses the service.
 class EmailSalt(ndb.Model):
     salt = ndb.BlobProperty(indexed = False, required = True)
 
@@ -20,7 +24,7 @@ class EmailSalt(ndb.Model):
     def getSalt(cls, user):
         existingSalt = cls.query(ancestor = EmailSalt.ancestorKey(user)).fetch(10)
         if len(existingSalt) > 1:
-            raise Exception("Several salts are store for email" + user + ", data corruption is about to happen.")
+            raise Exception("Several salts are stored for email" + user + ", data corruption is about to happen.")
         elif len(existingSalt) == 0:
             # We need to create the salt. We use the cryptographically secure os.urandom to do so.
             # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
@@ -60,7 +64,6 @@ class Counts(ndb.Model):
     def ancestorKey(cls, email):
         return ndb.Key("UserEmailHash", EmailSalt.hashForUser(email))
 
-    # TODO: Consolidate the querying logic to avoid parent/ancestor discrepancies.
     @classmethod
     def getLatestSubmittedEntries(cls, user):
         return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == True).order(-cls.updatedDate).fetch(25)
@@ -84,11 +87,9 @@ class Counts(ndb.Model):
             counts.put()
         else:
             if numberOfResults > 1:
-                # TODO: Email is not necessarily populated and we use user_id()
-                # in the rest of the code. Should this be changed too?
-                logging.error("Found %d unsubmitted request for user %s, hell is loose"
-                            % (numberOfResults, user.email()))
-                # TODO: Fix the data-store if there is more than one.
+                raise Exception("Found %d unsubmitted count for user %s, something is very wrong."
+                                 % (numberOfResults, user.email()))
+
             # Update the last result as it's the newest.
             counts = unsubmittedCounts[numberOfResults - 1]
             counts.physicalCount = parsedJson["physicalCount"]
@@ -114,9 +115,8 @@ class SavePage(webapp2.RequestHandler):
         shouldSubmit = False;
         if (self.request.get('submit')):
             shouldSubmit = True
-        logging.info("ShouldSubmit: %s" % shouldSubmit)
         Counts.saveCounts(user, self.request.body, shouldSubmit)
-        self.response.write("Not implemented")
+        self.response.write("Saved")
 
 class GetOldPage(webapp2.RequestHandler):
     def get(self):
