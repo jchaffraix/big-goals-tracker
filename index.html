@@ -1,43 +1,71 @@
 <!DOCTYPE html>
 <!-- Load polymer. -->
 <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+
 <link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
+<title>Big goal tracker</title>
+
 <style is="custom-style">
-paper-tabs {
-    --paper-tabs-selection-bar-color: var(--default-primary-color);
-    width: fit-content;
-    height: fit-content;
+paper-item {
+    margin: 10px 20px 0px 20px;
 }
 
-paper-tab {
-    --paper-tab-ink: var(--default-primary-color);
-    padding-right: 3em;
-    padding-left: 3em;
+paper-toolbar {
+    --paper-toolbar-background: blue;
 }
 
 paper-checkbox {
-    padding-top: 1em;
+    padding-top: 5px;
 }
 
-#counts {
-    padding-top: 5em;
+#physicalEnvTitle, #wellBeingTitle, #moneyTitle, #relationShipsTitle {
+    padding-right: 12px;
 }
 </style>
-<!-- TODO: Prettify this page. -->
 
-<paper-tabs selected="0">
-    <!-- TODO: Make this a better title. -->
-    <paper-tab><h1>PHYSICAL<br>ENVIRONMENT</h1></paper-tab>
-    <paper-tab><h1>WELL-BEING</h1></paper-tab>
-    <paper-tab><h1>MONEY</h1></paper-tab>
-    <paper-tab><h1>RELATIONSHIPS</h1></paper-tab>
-</paper-tabs>
+<body unchecked>
+<paper-toolbar justify="justified">
+    <paper-menu-button>
+        <paper-icon-button icon="menu" class="dropdown-trigger" alt="menu"></paper-icon-button>
+            <paper-menu class="dropdown-content">
+                <paper-item>Physical environment</paper-item>
+                <paper-item>Well-being</paper-item>
+                <paper-item>Money</paper-item>
+                <paper-item>Relationships</paper-item>
+            </paper-menu>
+    </paper-menu-button>
+    <iron-pages selected="0">
+        <div>
+            <span id="physicalEnvTitle">Physical environment</span>
+            <paper-badge for="physicalEnvTitle" id="physicalEnvBadge" label="0"></paper-badge>
+        </div>
+        <div>
+            <div id="wellBeingTitle">Well-being</div>
+            <paper-badge for="wellBeingTitle" id="wellBeingBadge" label="0"></paper-badge>
+        </div>
+        <div>
+            <div id="moneyTitle">Money</div>
+            <paper-badge for="moneyTitle" id="moneyBadge" label="0"></paper-badge>
+        </div>
+        <div>
+            <div id="relationShipsTitle">Relationships</div>
+            <paper-badge for="relationShipsTitle" id="relationShipsBadge" label="0"></paper-badge>
+        </div>
+    </iron-pages>
+    <paper-fab icon="send" alt="send" id="syncIcon"></paper-fab>
+    <paper-badge for="syncIcon" id="totalCountBadge" label="0"></paper-badge>
+</paper-toolbar>
 
-<iron-pages>
+<iron-pages selected="0">
 <!-- TODO: This is a hack! -->
 <div id="physicalEnvironment">
     <paper-checkbox>My personal files, papers and receipts are neatly filed away.</paper-checkbox><br>
@@ -149,26 +177,22 @@ paper-checkbox {
 </div>
 </iron-pages>
 
-</template>
-
-<div id="counts">
-Physical environment: <span id="physicalEnvironmentCount">0</span> out of 25.<br>
-Well being: <span id="wellBeingCount">0</span> out of 25.<br>
-Money: <span id="moneyCount">0</span> out of 25.<br>
-Relationships: <span id="relationshipsCount">0</span> out of 25.<br>
-Total count: <span id="totalCount">0</span> out of 100
-</div>
-
-<paper-icon-button icon="polymer" alt="polymer" id="syncIcon"></paper-icon-button>
-<a href="/old">
-    <paper-icon-button icon="favorite" alt="favorite" id="favIcon"></paper-icon-button>
-</a>
-
-<!-- TODO: Add the bottom navigation using paper-icon:
+<!-- TODO: Add the bottom navigation using paper-fab:
 <paper-icon-button icon="arrow-back" alt="arrow-back" title="arrow-back"></paper-icon-button>
 <paper-icon-button icon="arrow-forward" alt="arrow-forward" title="arrow-forward"></paper-icon-button>
 -->
 
+<script>
+// Make the pages respond to the tabs.
+// TODO: Bind the elements instead of some custom JS and repeated markup!
+var pages = document.querySelectorAll('iron-pages');
+var tabs = document.querySelector('paper-menu');
+
+tabs.addEventListener('iron-select', function() {
+    pages[0].selected = tabs.selected;
+    pages[1].selected = tabs.selected;
+});
+</script>
 <script>
 var counts = {
     physicalCount: 0,
@@ -179,11 +203,11 @@ var counts = {
 };
 
 var checkBoxes = document.getElementsByTagName("paper-checkbox");
-var physicalCountElement = document.getElementById("physicalEnvironmentCount");
-var wellBeingCountElement = document.getElementById("wellBeingCount");
-var moneyCountElement = document.getElementById("moneyCount");
-var relationshipCountElement = document.getElementById("relationshipsCount");
-var countElement = document.getElementById("totalCount");
+var physicalEnvBadge = document.getElementById("physicalEnvBadge");
+var wellBeingBadge = document.getElementById("wellBeingBadge");
+var moneyBadge = document.getElementById("moneyBadge");
+var relationShipsBadge = document.getElementById("relationShipsBadge");
+var totalCountBadge = document.getElementById("totalCountBadge");
 function updateCount(evt)
 {
     var checkBox = evt.target;
@@ -220,25 +244,16 @@ function updateCount(evt)
 }
 function updateCountsValues()
 {
-    physicalCountElement.innerHTML = counts.physicalCount;
-    wellBeingCountElement.innerHTML = counts.wellBeingCount;
-    moneyCountElement.innerHTML = counts.moneyCount;
-    relationshipCountElement.innerHTML = counts.relationshipsCount;
-    countElement.innerHTML = counts.totalCount;
+    physicalEnvBadge.setAttribute("label", counts.physicalCount);
+    wellBeingBadge.setAttribute("label", counts.wellBeingCount);
+    moneyBadge.setAttribute("label", counts.moneyCount);
+    relationShipsBadge.setAttribute("label", counts.relationshipsCount);
+    totalCountBadge.setAttribute("label", counts.totalCount);
     scheduleServerRequest();
 }
 for (i = 0; i < checkBoxes.length; ++i) {
     checkBoxes[i].addEventListener("change", updateCount, false);
 }
-
-// Make the pages respond to the tabs.
-var pages = document.querySelector('iron-pages');
-var tabs = document.querySelector('paper-tabs');
-
-tabs.addEventListener('iron-select', function() {
-    pages.selected = tabs.selected;
-});
-
 // Send a JSON to the server to save the progress.
 var throttleId = null;
 var throttleTime = 7 * 1000; // 7s
@@ -294,3 +309,5 @@ function submitData()
 }
 syncIcon.addEventListener("click", submitData, false);
 </script>
+
+</body>

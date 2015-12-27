@@ -1,5 +1,5 @@
 application: big-goals-tracker
-version: alpha-003
+version: alpha-004
 runtime: python27
 api_version: 1
 threadsafe: true
