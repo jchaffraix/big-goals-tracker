@@ -20,11 +20,15 @@ paper-item {
 }
 
 paper-toolbar {
-    --paper-toolbar-background: blue;
+    --paper-toolbar-background: var(--default-primary-color);
 }
 
 paper-checkbox {
     padding-top: 5px;
+}
+
+#syncIcon[syncing] {
+    background: #0f9d58;
 }
 
 #physicalEnvTitle, #wellBeingTitle, #moneyTitle, #relationShipsTitle {
@@ -241,6 +245,7 @@ function updateCount(evt)
         }
     }
     updateCountsValues();
+    scheduleServerRequest();
 }
 function updateCountsValues()
 {
@@ -249,7 +254,6 @@ function updateCountsValues()
     moneyBadge.setAttribute("label", counts.moneyCount);
     relationShipsBadge.setAttribute("label", counts.relationshipsCount);
     totalCountBadge.setAttribute("label", counts.totalCount);
-    scheduleServerRequest();
 }
 for (i = 0; i < checkBoxes.length; ++i) {
     checkBoxes[i].addEventListener("change", updateCount, false);
@@ -260,18 +264,25 @@ var throttleTime = 7 * 1000; // 7s
 var syncIcon = document.getElementById("syncIcon");
 function scheduleServerRequest()
 {
-    if (throttleId != null)
+    if (throttleId !== null)
         return;
 
-    syncIcon.setAttribute("disabled", "true");
+    syncIcon.setAttribute("syncing", "true");
     throttleId = setTimeout(sendServerRequest, throttleTime);
 }
 
 function sendServerRequest(shouldSubmit)
 {
     // Clear the throttle id as we are sending the request.
-    throttleId = null;
+    // Note that this could be called by the user so we have
+    // to call clearTimeout to prevent a double submit.
+    if (throttleId !== null) {
+        clearTimeout(throttleId);
+        throttleId = null;
+    }
 
+    // TODO: Should we validate that we don't
+    // submit an empty count here?
     var request = JSON.stringify(counts);
     var xhr = new XMLHttpRequest();
     var url = "/save";
@@ -280,7 +291,7 @@ function sendServerRequest(shouldSubmit)
     xhr.open("POST", url, true);
     xhr.onload = function() {
         if (xhr.status != 200) {
-            alert("Sync failed" + xhr.status);
+            alert("Sync failed with status: " + xhr.status);
         } else {
             if (shouldSubmit) {
                 counts.physicalCount = 0;
@@ -292,7 +303,7 @@ function sendServerRequest(shouldSubmit)
                 for (i = 0; i < checkBoxes.length; ++i)
                     checkBoxes[i].removeAttribute("checked");
             }
-            syncIcon.removeAttribute("disabled");
+            syncIcon.removeAttribute("syncing");
         }
     };
     xhr.onerror = function() {
