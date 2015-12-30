@@ -48,17 +48,18 @@ class EmailSalt(ndb.Model):
 class Counts(ndb.Model):
     # We track when this was last modified.
     updatedDate = ndb.DateProperty(auto_now=True)
-    physicalCount = ndb.IntegerProperty(indexed=False)
-    wellBeingCount = ndb.IntegerProperty(indexed=False)
-    moneyCount = ndb.IntegerProperty(indexed=False)
-    relationshipsCount = ndb.IntegerProperty(indexed=False)
+    physicalCount = ndb.IntegerProperty(indexed=False, repeated=True)
+    wellBeingCount = ndb.IntegerProperty(indexed=False, repeated=True)
+    moneyCount = ndb.IntegerProperty(indexed=False, repeated=True)
+    relationshipsCount = ndb.IntegerProperty(indexed=False, repeated=True)
+    # TODO: Total count is really just the sum of the previous counts.
     totalCount = ndb.IntegerProperty(indexed=False)
     # Whether the counts where submitted.
     # There should be only one unsubmitted Counts at all time per user.
     submitted = ndb.BooleanProperty()
 
     def toJSON(self):
-        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (self.physicalCount, self.wellBeingCount, self.moneyCount, self.relationshipsCount, self.totalCount, self.updatedDate)
+        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (len(self.physicalCount), len(self.wellBeingCount), len(self.moneyCount), len(self.relationshipsCount), self.totalCount, self.updatedDate)
 
     @classmethod
     def ancestorKey(cls, email):

@@ -187,6 +187,8 @@ paper-checkbox {
 -->
 
 <script>
+"use strict";
+
 // Make the pages respond to the tabs.
 // TODO: Bind the elements instead of some custom JS and repeated markup!
 var pages = document.querySelectorAll('iron-pages');
@@ -199,10 +201,10 @@ tabs.addEventListener('iron-select', function() {
 </script>
 <script>
 var counts = {
-    physicalCount: 0,
-    wellBeingCount: 0,
-    moneyCount: 0,
-    relationshipsCount: 0,
+    physicalCount: new Set(),
+    wellBeingCount: new Set(),
+    moneyCount: new Set(),
+    relationshipsCount: new Set(),
     totalCount: 0
 };
 
@@ -212,19 +214,19 @@ var wellBeingBadge = document.getElementById("wellBeingBadge");
 var moneyBadge = document.getElementById("moneyBadge");
 var relationShipsBadge = document.getElementById("relationShipsBadge");
 var totalCountBadge = document.getElementById("totalCountBadge");
-function updateCount(evt)
+function updateCount(index, evt)
 {
     var checkBox = evt.target;
     if (checkBox.hasAttribute("checked")) {
         counts.totalCount++;
         if (checkBox.parentElement.id === "physicalEnvironment")
-            counts.physicalCount++;
+            counts.physicalCount.add(index);
         else if (checkBox.parentElement.id === "wellBeing")
-            counts.wellBeingCount++;
+            counts.wellBeingCount.add(index);
         else if (checkBox.parentElement.id === "money")
-            counts.moneyCount++;
+            counts.moneyCount.add(index);
         else if (checkBox.parentElement.id === "relationships")
-            counts.relationshipsCount++;
+            counts.relationshipsCount.add(index);
         else {
             // TODO: Log some error.
             alert("Doesn't work.");
@@ -232,13 +234,13 @@ function updateCount(evt)
     } else {
         counts.totalCount--;
         if (checkBox.parentElement.id === "physicalEnvironment")
-            counts.physicalCount--;
+            counts.physicalCount.delete(index);
         else if (checkBox.parentElement.id === "wellBeing")
-            counts.wellBeingCount--;
+            counts.wellBeingCount.delete(index);
         else if (checkBox.parentElement.id === "money")
-            counts.moneyCount--;
+            counts.moneyCount.delete(index);
         else if (checkBox.parentElement.id === "relationships")
-            counts.relationshipsCount--;
+            counts.relationshipsCount.delete(index);
         else {
             // TODO: Log some error.
             alert("Doesn't work.");
@@ -249,14 +251,15 @@ function updateCount(evt)
 }
 function updateCountsValues()
 {
-    physicalEnvBadge.setAttribute("label", counts.physicalCount);
-    wellBeingBadge.setAttribute("label", counts.wellBeingCount);
-    moneyBadge.setAttribute("label", counts.moneyCount);
-    relationShipsBadge.setAttribute("label", counts.relationshipsCount);
+    physicalEnvBadge.setAttribute("label", counts.physicalCount.size);
+    wellBeingBadge.setAttribute("label", counts.wellBeingCount.size);
+    moneyBadge.setAttribute("label", counts.moneyCount.size);
+    relationShipsBadge.setAttribute("label", counts.relationshipsCount.size);
     totalCountBadge.setAttribute("label", counts.totalCount);
 }
+
 for (i = 0; i < checkBoxes.length; ++i) {
-    checkBoxes[i].addEventListener("change", updateCount, false);
+    checkBoxes[i].addEventListener("change", updateCount.bind(undefined, i), false);
 }
 // Send a JSON to the server to save the progress.
 var throttleId = null;
@@ -271,6 +274,28 @@ function scheduleServerRequest()
     throttleId = setTimeout(sendServerRequest, throttleTime);
 }
 
+function setToSortedArray(s)
+{
+    var newArray = [];
+    for (var i of s.values()) {
+        newArray.push(i);
+    }
+    newArray.sort();
+    return newArray;
+}
+
+function populateTransmissionObject()
+{
+    var countsToTransmit = {
+        physicalCount: setToSortedArray(counts.physicalCount),
+        wellBeingCount: setToSortedArray(counts.wellBeingCount),
+        moneyCount: setToSortedArray(counts.moneyCount),
+        relationshipsCount: setToSortedArray(counts.relationshipsCount),
+        totalCount: counts.totalCount
+    };
+    return countsToTransmit;
+}
+
 function sendServerRequest(shouldSubmit)
 {
     // Clear the throttle id as we are sending the request.
@@ -283,7 +308,8 @@ function sendServerRequest(shouldSubmit)
 
     // TODO: Should we validate that we don't
     // submit an empty count here?
-    var request = JSON.stringify(counts);
+
+    var request = JSON.stringify(populateTransmissionObject());
     var xhr = new XMLHttpRequest();
     var url = "/save";
     if (shouldSubmit === true)
@@ -294,10 +320,10 @@ function sendServerRequest(shouldSubmit)
             alert("Sync failed with status: " + xhr.status);
         } else {
             if (shouldSubmit) {
-                counts.physicalCount = 0;
-                counts.wellBeingCount = 0;
-                counts.moneyCount = 0;
-                counts.relationshipsCount = 0;
+                counts.physicalCount.clear();
+                counts.wellBeingCount.clear();
+                counts.moneyCount.clear();
+                counts.relationshipsCount.clear();
                 counts.totalCount = 0;
                 updateCountsValues();
                 for (i = 0; i < checkBoxes.length; ++i)
