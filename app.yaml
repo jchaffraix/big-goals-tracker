@@ -17,6 +17,8 @@ handlers:
   script: big-goals-tracker-save.app
 - url: /getold
   script: big-goals-tracker-save.app
+- url: /unsubmitted
+  script: big-goals-tracker-save.app
 - url: /.*
   script: inexistent.app
 

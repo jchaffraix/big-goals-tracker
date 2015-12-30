@@ -249,6 +249,7 @@ function updateCount(index, evt)
     updateCountsValues();
     scheduleServerRequest();
 }
+
 function updateCountsValues()
 {
     physicalEnvBadge.setAttribute("label", counts.physicalCount.size);
@@ -283,6 +284,53 @@ function setToSortedArray(s)
     newArray.sort();
     return newArray;
 }
+
+// This function synchronizes all the statuses with |counts|.
+function updateAllStatus()
+{
+    for (var i = 0; i < checkBoxes.length; ++i)
+        checkBoxes[i].removeAttribute("checked");
+
+    for (var i of counts.physicalCount)
+        checkBoxes[i].setAttribute("checked", "true");
+    for (var i of counts.wellBeingCount)
+        checkBoxes[i].setAttribute("checked", "true");
+    for (var i of counts.moneyCount)
+        checkBoxes[i].setAttribute("checked", "true");
+    for (var i of counts.relationshipsCount)
+        checkBoxes[i].setAttribute("checked", "true");
+
+    updateCountsValues();
+}
+
+// Shouldn't we block on this to avoid UI glitches if the user starts
+// interacting with the page?
+function fetchUnsubmittedCount()
+{
+    var xhr = new XMLHttpRequest();
+    var url = "/unsubmitted";
+    xhr.open("GET", url, true);
+    xhr.onload = function() {
+        if (xhr.status != 200) {
+            alert("Initial population failed with status: " + xhr.status);
+        } else {
+            if (xhr.responseText.length !== 0) {
+                counts = JSON.parse(xhr.responseText);
+                // TODO: This is not super clean but using arrays is a lot
+                // more error-prone (and inefficient). Maybe there is a better
+                // way to handle the marshalling.
+                counts.physicalCount = new Set(counts.physicalCount);
+                counts.wellBeingCount = new Set(counts.wellBeingCount);
+                counts.moneyCount = new Set(counts.moneyCount);
+                counts.relationshipsCount = new Set(counts.relationshipsCount);
+                console.log(counts);
+                updateAllStatus();
+            }
+        }
+    };
+    xhr.send();
+}
+window.addEventListener("load", fetchUnsubmittedCount);
 
 function populateTransmissionObject()
 {
@@ -325,9 +373,7 @@ function sendServerRequest(shouldSubmit)
                 counts.moneyCount.clear();
                 counts.relationshipsCount.clear();
                 counts.totalCount = 0;
-                updateCountsValues();
-                for (i = 0; i < checkBoxes.length; ++i)
-                    checkBoxes[i].removeAttribute("checked");
+                updateAllStatus();
             }
             syncIcon.removeAttribute("syncing");
         }

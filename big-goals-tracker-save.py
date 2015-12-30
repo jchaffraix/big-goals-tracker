@@ -58,8 +58,11 @@ class Counts(ndb.Model):
     # There should be only one unsubmitted Counts at all time per user.
     submitted = ndb.BooleanProperty()
 
-    def toJSON(self):
+    def toJSONSummary(self):
         return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (len(self.physicalCount), len(self.wellBeingCount), len(self.moneyCount), len(self.relationshipsCount), self.totalCount, self.updatedDate)
+
+    def toFullJSON(self):
+        return '{"physicalCount":%s,"wellBeingCount":%s,"moneyCount":%s,"relationshipsCount":%s,"totalCount":%d,"updatedDate":"%s"}' % (str(self.physicalCount), str(self.wellBeingCount), str(self.moneyCount), str(self.relationshipsCount), self.totalCount, self.updatedDate)
 
     @classmethod
     def ancestorKey(cls, email):
@@ -68,6 +71,10 @@ class Counts(ndb.Model):
     @classmethod
     def getLatestSubmittedEntries(cls, user):
         return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == True).order(-cls.updatedDate).fetch(25)
+
+    @classmethod
+    def getUnsubmittedCount(cls, user):
+        return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == False).order(-cls.updatedDate).fetch(10)
 
     @classmethod
     def saveCounts(cls, user, jsonString, shouldSubmit):
@@ -119,6 +126,22 @@ class SavePage(webapp2.RequestHandler):
         Counts.saveCounts(user, self.request.body, shouldSubmit)
         self.response.write("Saved")
 
+class GetUnsubmitted(webapp2.RequestHandler):
+    def get(self):
+        user = Authentication.userIfAllowed()
+        if not user:
+            self.response.status_int = 403
+            return
+
+        unsubmittedCounts = Counts.getUnsubmittedCount(user)
+        if len(unsubmittedCounts) > 1:
+            logging.error("More than one unsubmitted count for "
+                          + Counts.ancestorKey(user))
+        elif len(unsubmittedCounts) == 1:
+            self.response.write(unsubmittedCounts[0].toFullJSON())
+
+        # Note that we don't return any value if there is no unsubmitted count.
+
 class GetOldPage(webapp2.RequestHandler):
     def get(self):
         user = Authentication.userIfAllowed()
@@ -135,7 +158,7 @@ class GetOldPage(webapp2.RequestHandler):
             for i in range(0, len(logs)):
                 log = logs[i]
                 logging.info(log)
-                jsonifiedLogs += log.toJSON()
+                jsonifiedLogs += log.toJSONSummary()
                 if i != len(logs) - 1:
                     jsonifiedLogs += ","
             jsonifiedLogs += ']}'
@@ -143,6 +166,7 @@ class GetOldPage(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/save', SavePage),
+    ('/unsubmitted', GetUnsubmitted),
     ('/getold', GetOldPage),
 # TODO: Should I switch to debug=False?
 ], debug=True)
