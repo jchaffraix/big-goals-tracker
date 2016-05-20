@@ -5,15 +5,20 @@ from google.appengine.api import users
 
 # TODO: Unit-test
 class Authentication:
+    known_users = set(["be101762cccb1ff52ca83fdbe45aeb59a919e7088f3fcbdb2d83729a4e65b143"])
+
     @staticmethod
     def isUserAllowed(user):
         # Sanity check, admins should always be allowed.
         if users.is_current_user_admin():
             return True
 
-        logging.error(hashlib.algorithms_guaranteed)
         email_hash = hashlib.sha256(user.email().lower()).hexdigest()
-        return email_hash == "be101762cccb1ff52ca83fdbe45aeb59a919e7088f3fcbdb2d83729a4e65b143"
+        if email_hash in Authentication.known_users:
+            return True
+
+        logging.error("Rejected email %s (hash %s)" % (user.email().lower(), email_hash))
+        return False
 
     @staticmethod
     def userIfAllowed():
@@ -22,6 +27,5 @@ class Authentication:
             raise Exception("Got an unlogged user!")
 
         if not Authentication.isUserAllowed(user):
-            logging.error("Unknown access from %s" % user.email())
             return None
         return user
