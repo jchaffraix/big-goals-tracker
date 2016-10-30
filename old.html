@@ -1,13 +1,107 @@
 <!DOCTYPE html>
 <!-- TODO: Prettify for real. -->
+<style>
+.chart {
+    padding-bottom: 25px;
+}
+
+.chart {
+    fill: steelblue;
+}
+
+.physicalCount {
+    fill: purple;
+}
+
+.wellBeing {
+    fill: yellow;
+}
+
+.moneyCount {
+    fill: lightgreen;
+}
+
+.relationshipsCount {
+    fill: red;
+}
+
+.chart text {
+    fill: white;
+    font: 10px sans-serif;
+    text-anchor: end;
+}
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 function log(msg) {
     document.body.appendChild(document.createTextNode(msg));
     document.body.appendChild(document.createElement("br"));
 }
 
-function generateCounts(counts)
-{
+function negativeOffsetForLabel(count, countName) {
+    var offset = count["physicalCount"];
+    if (countName === "physicalCount")
+        return offset;
+    offset += count["wellBeingCount"];
+    if (countName === "wellBeingCount")
+        return offset;
+    offset += count["moneyCount"];
+    if (countName === "moneyCount") 
+        return offset;
+    offset += count["relationshipsCount"];
+    if (countName === "relationshipsCount")
+        return offset;
+    return NaN;
+}
+
+function offsetForLabel(count, countName) {
+    if (countName === "physicalCount")
+        return 0;
+    var offset = count["physicalCount"];
+    if (countName === "wellBeingCount")
+        return offset;
+    offset += count["wellBeingCount"];
+    if (countName === "moneyCount")
+        return offset;
+    if (countName === "relationshipsCount") 
+        return offset + count["moneyCount"];
+    return NaN;
+}
+
+function offsetForLabelLogging(count, countName, scaleY) {
+    console.log("offset for " + countName + ": " + scaleY(offsetForLabel(count, countName)) + "(" + offsetForLabel(count, countName) + ")");
+    return scaleY(negativeOffsetForLabel(count, countName));
+}
+
+function generateSingleBar(bar, barWidth, countName, height, scaleY) {
+    bar.append("rect")
+        .attr("class", "bar " + countName)
+        .attr("width", barWidth - 1)
+        .attr("height", function(count) { return scaleY(count[countName]); })
+        .attr("y", function(count) { return height - offsetForLabelLogging(count, countName, scaleY); })
+    // TODO: Readd the labels (https://bost.ocks.org/mike/bar/3/).
+}
+
+function generateCountsChart(counts) {
+    var height = 400, barWidth = 20;
+    var scaleY = d3.scaleLinear()
+        .range([0, height])
+        .domain([0, 100]);
+    var bar = d3.select(".chart")
+        .attr("width", barWidth * counts.length)
+        .attr("height", height)
+        .selectAll("g")
+        .data(counts)
+        .enter().append("g")
+            .attr("transform", function(d, i) { return "translate(" + i * barWidth + ", 0)"});
+
+    generateSingleBar(bar, barWidth, "physicalCount", height, scaleY);
+    generateSingleBar(bar, barWidth, "wellBeingCount", height, scaleY);
+    generateSingleBar(bar, barWidth, "moneyCount", height, scaleY);
+    generateSingleBar(bar, barWidth, "relationshipsCount", height, scaleY);
+}
+
+function generateCountsText(counts) {
     // TODO: Use Polymer's template generation.
     var div = document.createElement("div");
     div.appendChild(document.createTextNode("Submitted date: "));
@@ -57,12 +151,14 @@ xhr.onload = function() {
             log("No data yet (did you submit your score?)");
         } else {
             var counts = JSON.parse(xhr.responseText)["logs"];
+            generateCountsChart(counts);
             for (var i in counts) {
                 console.log(counts[i]);
-                document.body.appendChild(generateCounts(counts[i]));
+                document.body.appendChild(generateCountsText(counts[i]));
             }
         }
     }
 };
 xhr.send();
 </script>
+<svg class="chart"></svg>
