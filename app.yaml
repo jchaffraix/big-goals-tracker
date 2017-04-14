@@ -5,22 +5,33 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /nvd3
+  static_dir: nvd3
+  secure: always
 - url: /bower_components
   static_dir: bower_components
+  secure: always
 - url: /images
   static_dir: images
+  secure: always
 - url: /
   script: big-goals-tracker-main.app
+  secure: always
 - url: /old
   script: big-goals-tracker-main.app
+  secure: always
 - url: /save
   script: big-goals-tracker-save.app
+  secure: always
 - url: /getold
   script: big-goals-tracker-save.app
+  secure: always
 - url: /unsubmitted
   script: big-goals-tracker-save.app
+  secure: always
 - url: /.*
   script: inexistent.app
+  secure: always
 
 libraries:
 - name: webapp2

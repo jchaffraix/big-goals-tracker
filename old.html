@@ -31,7 +31,9 @@
     text-anchor: end;
 }
 </style>
+<style src="nvd3/nv.d3.min.css"></style>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="nvd3/nv.d3.min.js"></script>
 <script>
 function log(msg) {
     document.body.appendChild(document.createTextNode(msg));
@@ -83,22 +85,25 @@ function generateSingleBar(bar, barWidth, countName, height, scaleY) {
 }
 
 function generateCountsChart(counts) {
-    var height = 400, barWidth = 20;
-    var scaleY = d3.scaleLinear()
-        .range([0, height])
-        .domain([0, 100]);
-    var bar = d3.select(".chart")
-        .attr("width", barWidth * counts.length)
-        .attr("height", height)
-        .selectAll("g")
-        .data(counts)
-        .enter().append("g")
-            .attr("transform", function(d, i) { return "translate(" + i * barWidth + ", 0)"});
+    nv.addGraph(function() {
+        var chart = nv.models.multiBarChart();
 
-    generateSingleBar(bar, barWidth, "physicalCount", height, scaleY);
-    generateSingleBar(bar, barWidth, "wellBeingCount", height, scaleY);
-    generateSingleBar(bar, barWidth, "moneyCount", height, scaleY);
-    generateSingleBar(bar, barWidth, "relationshipsCount", height, scaleY);
+        chart.xAxis
+            .tickFormat(d3.format(',f'));
+
+        chart.yAxis
+            .tickFormat(d3.format(',.1f'));
+
+        d3.select('#chart svg')
+            .datum(counts)
+            .transition().duration(500)
+            .call(chart)
+            ;
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+    });
 }
 
 function generateCountsText(counts) {
