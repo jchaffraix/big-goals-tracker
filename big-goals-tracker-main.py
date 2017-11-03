@@ -1,14 +1,8 @@
 import os
-import jinja2
 import logging
 import webapp2
 
 from authentication import *
-
-JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    extensions=['jinja2.ext.autoescape'],
-    autoescape=True)
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -20,8 +14,8 @@ class MainPage(webapp2.RequestHandler):
             self.response.status_int = 403
             return
 
-        template = JINJA_ENVIRONMENT.get_template('index.html')
-        self.response.write(template.render())
+        template = open('index.html').read()
+        self.response.write(template)
 
 class OldPage(webapp2.RequestHandler):
     def get(self):
@@ -33,8 +27,8 @@ class OldPage(webapp2.RequestHandler):
             self.response.status_int = 403
             return
 
-        template = JINJA_ENVIRONMENT.get_template('old.html')
-        self.response.write(template.render())
+        template = open('old.html').read()
+        self.response.write(template)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
