@@ -31,6 +31,13 @@ handlers:
   script: inexistent.app
   secure: always
 
+skip_files:
+- ^nodes_modules/.*
+- ^LICENSE
+- ^semantic/gulpfile.js
+- ^semantic/src/.*
+- ^semantic/tasks/.*
+
 libraries:
 - name: webapp2
   version: latest
