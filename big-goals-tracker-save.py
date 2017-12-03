@@ -52,17 +52,15 @@ class Counts(ndb.Model):
     wellBeingCount = ndb.IntegerProperty(indexed=False, repeated=True)
     moneyCount = ndb.IntegerProperty(indexed=False, repeated=True)
     relationshipsCount = ndb.IntegerProperty(indexed=False, repeated=True)
-    # TODO: Total count is really just the sum of the previous counts.
-    totalCount = ndb.IntegerProperty(indexed=False)
     # Whether the counts where submitted.
     # There should be only one unsubmitted Counts at all time per user.
     submitted = ndb.BooleanProperty()
 
     def toJSONSummary(self):
-        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"totalCount":%d,"updatedDate":"%s"}' % (len(self.physicalCount), len(self.wellBeingCount), len(self.moneyCount), len(self.relationshipsCount), self.totalCount, self.updatedDate)
+        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"updatedDate":"%s"}' % (len(self.physicalCount), len(self.wellBeingCount), len(self.moneyCount), len(self.relationshipsCount), self.updatedDate)
 
     def toFullJSON(self):
-        return '{"physicalCount":%s,"wellBeingCount":%s,"moneyCount":%s,"relationshipsCount":%s,"totalCount":%d,"updatedDate":"%s"}' % (str(self.physicalCount), str(self.wellBeingCount), str(self.moneyCount), str(self.relationshipsCount), self.totalCount, self.updatedDate)
+        return '{"physicalCount":%s,"wellBeingCount":%s,"moneyCount":%s,"relationshipsCount":%s,"updatedDate":"%s"}' % (str(self.physicalCount), str(self.wellBeingCount), str(self.moneyCount), str(self.relationshipsCount), self.updatedDate)
 
     @classmethod
     def ancestorKey(cls, email):
@@ -78,7 +76,7 @@ class Counts(ndb.Model):
 
     @classmethod
     def saveCounts(cls, user, jsonString, shouldSubmit):
-        # TODO: Do some server side validation on the input (totalCount OK, ...).
+        # TODO: Do some server side validation on the input.
         parsedJson = json.loads(jsonString)
         #Query a previous instance to be sure.
         unsubmittedCounts = cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == False).order(-cls.updatedDate).fetch(10)
@@ -90,7 +88,6 @@ class Counts(ndb.Model):
                             wellBeingCount = parsedJson["wellBeingCount"],
                             moneyCount = parsedJson['moneyCount'],
                             relationshipsCount = parsedJson["relationshipsCount"],
-                            totalCount = parsedJson["totalCount"],
                             submitted = shouldSubmit)
             counts.put()
         else:
@@ -104,7 +101,6 @@ class Counts(ndb.Model):
             counts.wellBeingCount = parsedJson["wellBeingCount"]
             counts.moneyCount = parsedJson['moneyCount']
             counts.relationshipsCount = parsedJson["relationshipsCount"]
-            counts.totalCount = parsedJson["totalCount"]
             if (shouldSubmit):
                 counts.submitted = True
                 logging.info("Submitted counts: %s" % counts)
