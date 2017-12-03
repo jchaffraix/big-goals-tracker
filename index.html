@@ -147,10 +147,6 @@ var counts = {
 };
 
 var checkBoxes = $(".ui.checkbox")
-var physicalEnvBadge = document.getElementById("physicalEnvBadge");
-var wellBeingBadge = document.getElementById("wellBeingBadge");
-var moneyBadge = document.getElementById("moneyBadge");
-var relationShipsBadge = document.getElementById("relationShipsBadge");
 function updateCount(index, evt)
 {
     var checkBox = evt.target;
@@ -289,6 +285,7 @@ function sendServerRequest(shouldSubmit)
     xhr.open("POST", url, true);
     xhr.onload = function() {
         if (xhr.status != 200) {
+            // TODO: All the errors should generate a warning/error message.
             alert("Sync failed with status: " + xhr.status);
         } else {
             if (shouldSubmit) {
@@ -297,7 +294,8 @@ function sendServerRequest(shouldSubmit)
                 counts.moneyCount.clear();
                 counts.relationshipsCount.clear();
                 updateAllStatus();
-                // TODO: We should have a saved message.
+                // TODO: We should have a message about successfully saving.
+                // TODO: Also the UI should reset to the first tab.
                 $("#autosave").empty();
                 $("#saveButton").removeClass("loading");
             } else {
