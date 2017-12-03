@@ -9,6 +9,9 @@ handlers:
 - url: /bower_components
   static_dir: bower_components
   secure: always
+- url: /semantic/dist
+  static_dir: semantic/dist
+  secure: always
 - url: /images
   static_dir: images
   secure: always

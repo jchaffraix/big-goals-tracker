@@ -6,12 +6,18 @@
 <link rel="import" href="bower_components/iron-pages/iron-pages.html">
 
 <link rel="import" href="bower_components/paper-badge/paper-badge.html">
-<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
+
+<link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+<script src="semantic/dist/semantic.min.js"></script>
+
 <title>Big goal tracker</title>
 
 <style is="custom-style">
@@ -36,179 +42,147 @@ paper-checkbox {
 }
 </style>
 
+<script>
+function preparePage() {
+  $('.menu .item').tab();
+}
+
+window.addEventListener("load", preparePage, false);
+</script>
 <body unchecked>
 <paper-toolbar justify="justified">
-    <paper-menu-button>
-        <paper-icon-button icon="menu" class="dropdown-trigger" alt="menu"></paper-icon-button>
-            <paper-menu class="dropdown-content">
-                <paper-item>Physical environment</paper-item>
-                <paper-item>Well-being</paper-item>
-                <paper-item>Money</paper-item>
-                <paper-item>Relationships</paper-item>
-            </paper-menu>
-    </paper-menu-button>
-    <iron-pages selected="0">
-        <div>
-            <span id="physicalEnvTitle">Physical environment</span>
-            <paper-badge for="physicalEnvTitle" id="physicalEnvBadge" label="0"></paper-badge>
-        </div>
-        <div>
-            <div id="wellBeingTitle">Well-being</div>
-            <paper-badge for="wellBeingTitle" id="wellBeingBadge" label="0"></paper-badge>
-        </div>
-        <div>
-            <div id="moneyTitle">Money</div>
-            <paper-badge for="moneyTitle" id="moneyBadge" label="0"></paper-badge>
-        </div>
-        <div>
-            <div id="relationShipsTitle">Relationships</div>
-            <paper-badge for="relationShipsTitle" id="relationShipsBadge" label="0"></paper-badge>
-        </div>
-    </iron-pages>
     <paper-fab icon="send" alt="send" id="syncIcon"></paper-fab>
     <paper-badge for="syncIcon" id="totalCountBadge" label="0"></paper-badge>
 </paper-toolbar>
 
-<iron-pages selected="0">
-<!-- TODO: This is a hack! -->
-<div id="physicalEnvironment">
-    <paper-checkbox>My personal files, papers and receipts are neatly filed away.</paper-checkbox><br>
-    <paper-checkbox>My car is in excellent condition. (Doesn't need mechanical work, repairs, cleaning or replacing.)</paper-checkbox><br>
-    <paper-checkbox>My home is neat and clean. (Vacuumed, closets clean, desks and tables clear, furniture in good repair; windows clean)</paper-checkbox><br>
-    <paper-checkbox>My appliances, machinery and equipment work well. (Refrigerator, toaster, snow-blower, water heater, toys)</paper-checkbox><br>
-    <paper-checkbox>My clothes are all pressed, clean and make me look great. (No wrinkles, baskets of laundry, torn, out of date or ill-fitting clothes)</paper-checkbox><br>
-    <paper-checkbox>My plants and animals are healthy. (Fed, watered, getting light and love)</paper-checkbox><br>
-    <paper-checkbox>My bed/bedroom lets me have the best sleep possible. (Firm bed, light, air)</paper-checkbox><br>
-    <paper-checkbox>I live in a home/apartment that I love.</paper-checkbox><br>
-    <paper-checkbox>I surround myself with beautiful things.</paper-checkbox><br>
-    <paper-checkbox>I live in the geographic area of my choice.</paper-checkbox><br>
-    <paper-checkbox>There is ample and healthy lighting around me.</paper-checkbox><br>
-    <paper-checkbox>I consistently have adequate time, space and freedom in my life.</paper-checkbox><br>
-    <paper-checkbox>I am not damaged by my environment.</paper-checkbox><br>
-    <paper-checkbox>I am not tolerating anything about my home or work environment.</paper-checkbox><br>
-    <paper-checkbox>My work environment is productive and inspiring. (Synergistic, ample tools, and resources; no undue pressure)</paper-checkbox><br>
-    <paper-checkbox>I recycle.</paper-checkbox><br>
-    <paper-checkbox>I use non ozone depleting products.</paper-checkbox><br>
-    <paper-checkbox>My hair is the way that I want it.</paper-checkbox><br>
-    <paper-checkbox>I surround myself with music which makes my life more enjoyable.</paper-checkbox><br>
-    <paper-checkbox>My bed is made daily.</paper-checkbox><br>
-    <paper-checkbox>I don't injure myself, fall or bump into things.</paper-checkbox><br>
-    <paper-checkbox>People feel comfortable in my home.</paper-checkbox><br>
-    <paper-checkbox>I drink purified water.</paper-checkbox><br>
-    <paper-checkbox>I have nothing around the house or in storage that I do not need.</paper-checkbox><br>
-    <paper-checkbox>I am consistently early or easily on time.</paper-checkbox><br>
+<div class="ui top attached tabular menu">
+  <a class="item active" data-tab="physical">Physical environment</a>
+  <a class="item" data-tab="wellbeing">Well-being</a>
+  <a class="item" data-tab="money">Money</a>
+  <a class="item" data-tab="relationships">Relationships</a>
 </div>
-<div id="wellBeing">
-    <paper-checkbox>I rarely use caffeine. (Chocolate, coffee, colas, tea) less than 3 times per week, total.</paper-checkbox><br>
-    <paper-checkbox>I rarely eat sugar. (Less than 3 times per week)</paper-checkbox><br>
-    <paper-checkbox>I rarely watch television. (Less than 5 hours per week)</paper-checkbox><br>
-    <paper-checkbox>I rarely drink alcohol. (Less than 2 drinks per week)</paper-checkbox><br>
-    <paper-checkbox>My teeth and gums are healthy. (Have seen a dentist in last 6 months)</paper-checkbox><br>
-    <paper-checkbox>My cholesterol count is healthful.</paper-checkbox><br>
-    <paper-checkbox>My blood pressure is healthful.</paper-checkbox><br>
-    <paper-checkbox>I have had a complete physical exam in the past 3 years.</paper-checkbox><br>
-    <paper-checkbox>I do not smoke tobacco or other substances.</paper-checkbox><br>
-    <paper-checkbox>I do not use illegal drugs or misuse prescribed medications.</paper-checkbox><br>
-    <paper-checkbox>I have had a complete eye exam within the past two years. (Glaucoma check, vision test)</paper-checkbox><br>
-    <paper-checkbox>My weight is within my ideal range.</paper-checkbox><br>
-    <paper-checkbox>My nails are healthy and look good.</paper-checkbox><br>
-    <paper-checkbox>I don't rush or use adrenaline to get the job done.</paper-checkbox><br>
-    <paper-checkbox>I have a rewarding life beyond my work or profession.</paper-checkbox><br>
-    <paper-checkbox>I have something to look forward to virtually every day.</paper-checkbox><br>
-    <paper-checkbox>I have no habits which I find to be unacceptable.</paper-checkbox><br>
-    <paper-checkbox>I am aware of the physical or emotional problems or conditions I have, and I am now fully taking care of all of them.</paper-checkbox><br>
-    <paper-checkbox>I consistently take evenings, weekends and holidays off and take at least two weeks of vacation each year.</paper-checkbox><br>
-    <paper-checkbox>I have been tested for the AIDS antibody.</paper-checkbox><br>
-    <paper-checkbox>I use well made sunglasses.</paper-checkbox><br>
-    <paper-checkbox>I do not suffer.</paper-checkbox><br>
-    <paper-checkbox>I floss daily.</paper-checkbox><br>
-    <paper-checkbox>I walk or exercise at least three times per week.</paper-checkbox><br>
-    <paper-checkbox>I hear well.</paper-checkbox><br>
+
+<div class="ui bottom attached active tab segment" data-tab="physical" id="physicalEnvironment">
+    <div class="ui checkbox"><input type="checkbox"><label>My personal files, papers and receipts are neatly filed away.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My car is in excellent condition. (Doesn't need mechanical work, repairs, cleaning or replacing.)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My home is neat and clean. (Vacuumed, closets clean, desks and tables clear, furniture in good repair; windows clean)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My appliances, machinery and equipment work well. (Refrigerator, toaster, snow-blower, water heater, toys)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My clothes are all pressed, clean and make me look great. (No wrinkles, baskets of laundry, torn, out of date or ill-fitting clothes)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My plants and animals are healthy. (Fed, watered, getting light and love)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My bed/bedroom lets me have the best sleep possible. (Firm bed, light, air)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I live in a home/apartment that I love.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I surround myself with beautiful things.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I live in the geographic area of my choice.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>There is ample and healthy lighting around me.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I consistently have adequate time, space and freedom in my life.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am not damaged by my environment.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am not tolerating anything about my home or work environment.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My work environment is productive and inspiring. (Synergistic, ample tools, and resources; no undue pressure)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I recycle.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I use non ozone depleting products.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My hair is the way that I want it.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I surround myself with music which makes my life more enjoyable.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My bed is made daily.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I don't injure myself, fall or bump into things.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>People feel comfortable in my home.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I drink purified water.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have nothing around the house or in storage that I do not need.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am consistently early or easily on time.</label></div><br>
 </div>
-<div id="money">
-    <paper-checkbox>I currently save at least 10% of my income.</paper-checkbox><br>
-    <paper-checkbox>I pay my bills on time, virtually always.</paper-checkbox><br>
-    <paper-checkbox>My income source/revenue base is stable and predictable.</paper-checkbox><br>
-    <paper-checkbox>I know how much I must have to be minimally financially independent and I have a plan to get there.</paper-checkbox><br>
-    <paper-checkbox>I have returned or made-good any money I borrowed.</paper-checkbox><br>
-    <paper-checkbox>I have written agreements and am current with payments to individuals or companies to whom I owe money.</paper-checkbox><br>
-    <paper-checkbox>I have 6 months' living expenses in a money market-type account.</paper-checkbox><br>
-    <paper-checkbox>I live on a weekly budget which allows me to save and not suffer.</paper-checkbox><br>
-    <paper-checkbox>All my tax returns have been filed and all my taxes have been paid.</paper-checkbox><br>
-    <paper-checkbox>I currently live well, within my means.</paper-checkbox><br>
-    <paper-checkbox>I have excellent medical insurance.</paper-checkbox><br>
-    <paper-checkbox>My assets (car, home, possessions, treasures) are well-insured.</paper-checkbox><br>
-    <paper-checkbox>I have a financial plan for the next year.</paper-checkbox><br>
-    <paper-checkbox>I have no legal clouds hanging over me.</paper-checkbox><br>
-    <paper-checkbox>My will is up-to-date and accurate.</paper-checkbox><br>
-    <paper-checkbox>Any parking tickets, alimony or child support are paid and current.</paper-checkbox><br>
-    <paper-checkbox>My investments do not keep me awake at night.</paper-checkbox><br>
-    <paper-checkbox>I know how much I am worth.</paper-checkbox><br>
-    <paper-checkbox>I am on a career/professional/business track which is or will soon be financially and personally rewarding.</paper-checkbox><br>
-    <paper-checkbox>My earnings are commensurate with the effort I put into my job.</paper-checkbox><br>
-    <paper-checkbox>I have no "loose ends" at work.</paper-checkbox><br>
-    <paper-checkbox>I am in relationships with people who can assist in my career/professional development.</paper-checkbox><br>
-    <paper-checkbox>I rarely miss work due to illness.</paper-checkbox><br>
-    <paper-checkbox>I am putting aside enough money each month to reach financial independence.</paper-checkbox><br>
-    <paper-checkbox>My earnings outpace inflation, consistently.</paper-checkbox><br>
+<div class="ui bottom attached tab segment" data-tab="wellbeing" id="wellBeing">
+    <div class="ui checkbox"><input type="checkbox"><label>I rarely use caffeine. (Chocolate, coffee, colas, tea) less than 3 times per week, total.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I rarely eat sugar. (Less than 3 times per week)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I rarely watch television. (Less than 5 hours per week)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I rarely drink alcohol. (Less than 2 drinks per week)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My teeth and gums are healthy. (Have seen a dentist in last 6 months)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My cholesterol count is healthful.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My blood pressure is healthful.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have had a complete physical exam in the past 3 years.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not smoke tobacco or other substances.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not use illegal drugs or misuse prescribed medications.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have had a complete eye exam within the past two years. (Glaucoma check, vision test)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My weight is within my ideal range.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My nails are healthy and look good.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I don't rush or use adrenaline to get the job done.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have a rewarding life beyond my work or profession.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have something to look forward to virtually every day.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have no habits which I find to be unacceptable.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am aware of the physical or emotional problems or conditions I have, and I am now fully taking care of all of them.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I consistently take evenings, weekends and holidays off and take at least two weeks of vacation each year.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have been tested for the AIDS antibody.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I use well made sunglasses.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not suffer.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I floss daily.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I walk or exercise at least three times per week.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I hear well.</label></div><br>
 </div>
-<div id="relationships">
-    <paper-checkbox>I have told my parents, in the last 3 months, that I love them.</paper-checkbox><br>
-    <paper-checkbox>I get along well with my sibling(s).</paper-checkbox><br>
-    <paper-checkbox>I get along well with my co-workers/clients.</paper-checkbox><br>
-    <paper-checkbox>I get along well with my manager/staff.</paper-checkbox><br>
-    <paper-checkbox>There is no one who I would dread or feel uncomfortable "running across". (In the street, at an airport or party)</paper-checkbox><br>
-    <paper-checkbox>I put people first and results second.</paper-checkbox><br>
-    <paper-checkbox>I have let go of the relationships which drag me down or damage me. ("Let go" means to end, walk away from, declare complete, no longer be attached to)</paper-checkbox><br>
-    <paper-checkbox>I have communicated or attempted to communicate with everyone who I damaged, injured or seriously upset, even if it wasn't fully my fault.</paper-checkbox><br>
-    <paper-checkbox>I do not gossip or talk about others.</paper-checkbox><br>
-    <paper-checkbox>I have a circle of friends/family who love and appreciate me for who I am, more than just what I do for them.</paper-checkbox><br>
-    <paper-checkbox>I tell people how they can satisfy me.</paper-checkbox><br>
-    <paper-checkbox>I am fully caught up with letters and calls.</paper-checkbox><br>
-    <paper-checkbox>I always tell the truth, no matter what.</paper-checkbox><br>
-    <paper-checkbox>I receive enough love from people around me to feel good.</paper-checkbox><br>
-    <paper-checkbox>I have fully forgiven those people who have hurt/damaged me, intentional or not.</paper-checkbox><br>
-    <paper-checkbox>I am a person of his/her word; people can count on me.</paper-checkbox><br>
-    <paper-checkbox>I quickly correct miscommunications and misunderstandings when they do occur.</paper-checkbox><br>
-    <paper-checkbox>I live life on my terms, not by the rules or preferences of others.</paper-checkbox><br>
-    <paper-checkbox>I am complete with past loves or spouses.</paper-checkbox><br>
-    <paper-checkbox>I am in tune with my wants and needs and get them taken care of.</paper-checkbox><br>
-    <paper-checkbox>I do not judge or criticize others.</paper-checkbox><br>
-    <paper-checkbox>I do not "take personally" the things that people say to me.</paper-checkbox><br>
-    <paper-checkbox>I have a best friend or soul-mate.</paper-checkbox><br>
-    <paper-checkbox>I make requests rather than complain.</paper-checkbox><br>
-    <paper-checkbox>I spend time with people who don't try to change me.</paper-checkbox><br>
+<div class="ui bottom attached tab segment" data-tab="money" id="money">
+    <div class="ui checkbox"><input type="checkbox"><label>I currently save at least 10% of my income.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I pay my bills on time, virtually always.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My income source/revenue base is stable and predictable.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I know how much I must have to be minimally financially independent and I have a plan to get there.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have returned or made-good any money I borrowed.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have written agreements and am current with payments to individuals or companies to whom I owe money.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have 6 months' living expenses in a money market-type account.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I live on a weekly budget which allows me to save and not suffer.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>All my tax returns have been filed and all my taxes have been paid.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I currently live well, within my means.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have excellent medical insurance.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My assets (car, home, possessions, treasures) are well-insured.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have a financial plan for the next year.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have no legal clouds hanging over me.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My will is up-to-date and accurate.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>Any parking tickets, alimony or child support are paid and current.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My investments do not keep me awake at night.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I know how much I am worth.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am on a career/professional/business track which is or will soon be financially and personally rewarding.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My earnings are commensurate with the effort I put into my job.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have no "loose ends" at work.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am in relationships with people who can assist in my career/professional development.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I rarely miss work due to illness.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am putting aside enough money each month to reach financial independence.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>My earnings outpace inflation, consistently.</label></div><br>
 </div>
-</iron-pages>
+<div class="ui bottom attached tab segment" data-tab="relationships" id="relationships">
+    <div class="ui checkbox"><input type="checkbox"><label>I have told my parents, in the last 3 months, that I love them.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I get along well with my sibling(s).</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I get along well with my co-workers/clients.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I get along well with my manager/staff.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>There is no one who I would dread or feel uncomfortable "running across". (In the street, at an airport or party)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I put people first and results second.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have let go of the relationships which drag me down or damage me. ("Let go" means to end, walk away from, declare complete, no longer be attached to)</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have communicated or attempted to communicate with everyone who I damaged, injured or seriously upset, even if it wasn't fully my fault.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not gossip or talk about others.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have a circle of friends/family who love and appreciate me for who I am, more than just what I do for them.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I tell people how they can satisfy me.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am fully caught up with letters and calls.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I always tell the truth, no matter what.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I receive enough love from people around me to feel good.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have fully forgiven those people who have hurt/damaged me, intentional or not.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am a person of his/her word; people can count on me.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I quickly correct miscommunications and misunderstandings when they do occur.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I live life on my terms, not by the rules or preferences of others.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am complete with past loves or spouses.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I am in tune with my wants and needs and get them taken care of.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not judge or criticize others.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I do not "take personally" the things that people say to me.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I have a best friend or soul-mate.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I make requests rather than complain.</label></div><br>
+    <div class="ui checkbox"><input type="checkbox"><label>I spend time with people who don't try to change me.</label></div><br>
+</div>
 
-<!-- TODO: Add the bottom navigation using paper-fab:
-<paper-icon-button icon="arrow-back" alt="arrow-back" title="arrow-back"></paper-icon-button>
-<paper-icon-button icon="arrow-forward" alt="arrow-forward" title="arrow-forward"></paper-icon-button>
--->
-
-<script>
-"use strict";
-
-// Make the pages respond to the tabs.
-// TODO: Bind the elements instead of some custom JS and repeated markup!
-var pages = document.querySelectorAll('iron-pages');
-var tabs = document.querySelector('paper-menu');
-
-tabs.addEventListener('iron-select', function() {
-    pages[0].selected = tabs.selected;
-    pages[1].selected = tabs.selected;
-});
-</script>
 <script>
 var counts = {
     physicalCount: new Set(),
     wellBeingCount: new Set(),
     moneyCount: new Set(),
     relationshipsCount: new Set(),
-    totalCount: 0
+};
+function totalCount() {
+  return counts.physicalCount.size + counts.wellBeingCount.size + counts.moneyCount.size + counts.relationshipsCount.size;
 };
 
-var checkBoxes = document.getElementsByTagName("paper-checkbox");
+var checkBoxes = $(".ui.checkbox")
 var physicalEnvBadge = document.getElementById("physicalEnvBadge");
 var wellBeingBadge = document.getElementById("wellBeingBadge");
 var moneyBadge = document.getElementById("moneyBadge");
@@ -217,29 +191,29 @@ var totalCountBadge = document.getElementById("totalCountBadge");
 function updateCount(index, evt)
 {
     var checkBox = evt.target;
-    if (checkBox.hasAttribute("checked")) {
-        counts.totalCount++;
-        if (checkBox.parentElement.id === "physicalEnvironment")
+    var isChecked = $(checkBox.parentElement).hasClass("checked");
+    var container= checkBox.parentElement.parentElement;
+    if (isChecked) {
+        if (container.id === "physicalEnvironment")
             counts.physicalCount.add(index);
-        else if (checkBox.parentElement.id === "wellBeing")
+        else if (container.id === "wellBeing")
             counts.wellBeingCount.add(index);
-        else if (checkBox.parentElement.id === "money")
+        else if (container.id === "money")
             counts.moneyCount.add(index);
-        else if (checkBox.parentElement.id === "relationships")
+        else if (container.id === "relationships")
             counts.relationshipsCount.add(index);
         else {
             // TODO: Log some error.
             alert("Doesn't work.");
         }
     } else {
-        counts.totalCount--;
-        if (checkBox.parentElement.id === "physicalEnvironment")
+        if (container.id === "physicalEnvironment")
             counts.physicalCount.delete(index);
-        else if (checkBox.parentElement.id === "wellBeing")
+        else if (container.id === "wellBeing")
             counts.wellBeingCount.delete(index);
-        else if (checkBox.parentElement.id === "money")
+        else if (container.id === "money")
             counts.moneyCount.delete(index);
-        else if (checkBox.parentElement.id === "relationships")
+        else if (container.id === "relationships")
             counts.relationshipsCount.delete(index);
         else {
             // TODO: Log some error.
@@ -252,16 +226,18 @@ function updateCount(index, evt)
 
 function updateCountsValues()
 {
-    physicalEnvBadge.setAttribute("label", counts.physicalCount.size);
-    wellBeingBadge.setAttribute("label", counts.wellBeingCount.size);
-    moneyBadge.setAttribute("label", counts.moneyCount.size);
-    relationShipsBadge.setAttribute("label", counts.relationshipsCount.size);
-    totalCountBadge.setAttribute("label", counts.totalCount);
+    // TODO: Do I want to keep those?
+    //physicalEnvBadge.setAttribute("label", counts.physicalCount.size);
+    //wellBeingBadge.setAttribute("label", counts.wellBeingCount.size);
+    //moneyBadge.setAttribute("label", counts.moneyCount.size);
+    //relationShipsBadge.setAttribute("label", counts.relationshipsCount.size);
+    totalCountBadge.setAttribute("label", totalCount());
 }
 
 for (i = 0; i < checkBoxes.length; ++i) {
-    checkBoxes[i].addEventListener("change", updateCount.bind(undefined, i), false);
+  $(checkBoxes[i]).change(updateCount.bind(undefined, i));
 }
+
 // Send a JSON to the server to save the progress.
 var throttleId = null;
 var throttleTime = 2 * 1000; // 2s
@@ -288,17 +264,16 @@ function setToSortedArray(s)
 // This function synchronizes all the statuses with |counts|.
 function updateAllStatus()
 {
-    for (var i = 0; i < checkBoxes.length; ++i)
-        checkBoxes[i].removeAttribute("checked");
+    checkBoxes.checkbox("uncheck");
 
     for (var i of counts.physicalCount)
-        checkBoxes[i].setAttribute("checked", "true");
+        $(checkBoxes[i]).checkbox("set checked");
     for (var i of counts.wellBeingCount)
-        checkBoxes[i].setAttribute("checked", "true");
+        $(checkBoxes[i]).checkbox("set checked");
     for (var i of counts.moneyCount)
-        checkBoxes[i].setAttribute("checked", "true");
+        $(checkBoxes[i]).checkbox("set checked");
     for (var i of counts.relationshipsCount)
-        checkBoxes[i].setAttribute("checked", "true");
+        $(checkBoxes[i]).checkbox("set checked");
 
     updateCountsValues();
 }
@@ -339,7 +314,8 @@ function populateTransmissionObject()
         wellBeingCount: setToSortedArray(counts.wellBeingCount),
         moneyCount: setToSortedArray(counts.moneyCount),
         relationshipsCount: setToSortedArray(counts.relationshipsCount),
-        totalCount: counts.totalCount
+        // TODO: Remove from our data model.
+        totalCount: totalCount(),
     };
     return countsToTransmit;
 }
@@ -372,7 +348,6 @@ function sendServerRequest(shouldSubmit)
                 counts.wellBeingCount.clear();
                 counts.moneyCount.clear();
                 counts.relationshipsCount.clear();
-                counts.totalCount = 0;
                 updateAllStatus();
             }
             syncIcon.removeAttribute("syncing");
