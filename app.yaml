@@ -6,9 +6,6 @@ handlers:
 - url: /nvd3
   static_dir: nvd3
   secure: always
-- url: /bower_components
-  static_dir: bower_components
-  secure: always
 - url: /semantic/dist
   static_dir: semantic/dist
   secure: always

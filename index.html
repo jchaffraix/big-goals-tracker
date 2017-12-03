@@ -1,17 +1,4 @@
 <!DOCTYPE html>
-<!-- Load polymer. -->
-<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-
-<link rel="import" href="bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="bower_components/iron-pages/iron-pages.html">
-
-<link rel="import" href="bower_components/paper-badge/paper-badge.html">
-<link rel="import" href="bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
-
 <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -20,28 +7,6 @@
 
 <title>Big goal tracker</title>
 
-<style is="custom-style">
-paper-item {
-    margin: 10px 20px 0px 20px;
-}
-
-paper-toolbar {
-    --paper-toolbar-background: var(--default-primary-color);
-}
-
-paper-checkbox {
-    padding-top: 5px;
-}
-
-#syncIcon[syncing] {
-    background: #0f9d58;
-}
-
-#physicalEnvTitle, #wellBeingTitle, #moneyTitle, #relationShipsTitle {
-    padding-right: 12px;
-}
-</style>
-
 <script>
 function preparePage() {
   $('.menu .item').tab();
@@ -49,17 +14,18 @@ function preparePage() {
 
 window.addEventListener("load", preparePage, false);
 </script>
-<body unchecked>
-<paper-toolbar justify="justified">
-    <paper-fab icon="send" alt="send" id="syncIcon"></paper-fab>
-    <paper-badge for="syncIcon" id="totalCountBadge" label="0"></paper-badge>
-</paper-toolbar>
+<body>
+<div class="ui container">
 
 <div class="ui top attached tabular menu">
   <a class="item active" data-tab="physical">Physical environment</a>
   <a class="item" data-tab="wellbeing">Well-being</a>
   <a class="item" data-tab="money">Money</a>
   <a class="item" data-tab="relationships">Relationships</a>
+  <a class="right item">
+    <span id="autosave"></span>
+    <!-- TODO: Should we include a 5 stars ranking? -->
+    <div class="ui primary button" id="saveButton">Save</div></a>
 </div>
 
 <div class="ui bottom attached active tab segment" data-tab="physical" id="physicalEnvironment">
@@ -170,6 +136,7 @@ window.addEventListener("load", preparePage, false);
     <div class="ui checkbox"><input type="checkbox"><label>I make requests rather than complain.</label></div><br>
     <div class="ui checkbox"><input type="checkbox"><label>I spend time with people who don't try to change me.</label></div><br>
 </div>
+</div>
 
 <script>
 var counts = {
@@ -220,18 +187,7 @@ function updateCount(index, evt)
             alert("Doesn't work.");
         }
     }
-    updateCountsValues();
     scheduleServerRequest();
-}
-
-function updateCountsValues()
-{
-    // TODO: Do I want to keep those?
-    //physicalEnvBadge.setAttribute("label", counts.physicalCount.size);
-    //wellBeingBadge.setAttribute("label", counts.wellBeingCount.size);
-    //moneyBadge.setAttribute("label", counts.moneyCount.size);
-    //relationShipsBadge.setAttribute("label", counts.relationshipsCount.size);
-    totalCountBadge.setAttribute("label", totalCount());
 }
 
 for (i = 0; i < checkBoxes.length; ++i) {
@@ -247,7 +203,7 @@ function scheduleServerRequest()
     if (throttleId !== null)
         return;
 
-    syncIcon.setAttribute("syncing", "true");
+    $("#autosave").text("Autosaving");
     throttleId = setTimeout(sendServerRequest, throttleTime);
 }
 
@@ -274,8 +230,6 @@ function updateAllStatus()
         $(checkBoxes[i]).checkbox("set checked");
     for (var i of counts.relationshipsCount)
         $(checkBoxes[i]).checkbox("set checked");
-
-    updateCountsValues();
 }
 
 // Shouldn't we block on this to avoid UI glitches if the user starts
@@ -349,8 +303,12 @@ function sendServerRequest(shouldSubmit)
                 counts.moneyCount.clear();
                 counts.relationshipsCount.clear();
                 updateAllStatus();
+                // TODO: We should have a saved message.
+                $("#autosave").empty();
+                $("#saveButton").removeClass("loading");
+            } else {
+              $("#autosave").text("Autosaved at " + new Date().toLocaleTimeString());
             }
-            syncIcon.removeAttribute("syncing");
         }
     };
     xhr.onerror = function() {
@@ -360,12 +318,14 @@ function sendServerRequest(shouldSubmit)
     xhr.send(request);
 }
 
-//TODO: We send an empty save after submit.
+// TODO: We send an empty save after submit.
+// TODO: We autosave for nothing when loading the page.
 function submitData()
 {
-    sendServerRequest(true);
+  $("#saveButton").addClass("loading");
+  sendServerRequest(true);
 }
-syncIcon.addEventListener("click", submitData, false);
+$("#saveButton").click(submitData);
 </script>
 
 </body>
