@@ -33,10 +33,3 @@ handlers:
 - url: /.*
   script: auto
   secure: always
-
-skip_files:
-- ^nodes_modules/.*
-- ^LICENSE
-- ^semantic/gulpfile.js
-- ^semantic/src/.*
-- ^semantic/tasks/.*
