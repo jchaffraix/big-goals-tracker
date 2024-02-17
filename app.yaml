@@ -1,5 +1,6 @@
 runtime: go120
-api_version: 1
+# This is required by the Go code
+app_engine_apis: true
 
 runtime_config:
   operating_system: "ubuntu22"

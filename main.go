@@ -15,8 +15,8 @@ import (
   "github.com/julienschmidt/httprouter"
 
   "cloud.google.com/go/datastore"
-  //"google.golang.org/appengine"
-  "google.golang.org/appengine/user"
+  //"google.golang.org/appengine/v2"
+  "google.golang.org/appengine/v2/user"
 )
 
 const (
