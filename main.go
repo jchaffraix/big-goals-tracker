@@ -15,7 +15,7 @@ import (
   "github.com/julienschmidt/httprouter"
 
   "cloud.google.com/go/datastore"
-  //"google.golang.org/appengine/v2"
+  "google.golang.org/appengine/v2"
   "google.golang.org/appengine/v2/user"
 )
 
@@ -97,8 +97,7 @@ func mainPageHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Par
     return
   }
 
-  //ctx := appengine.NewContext(req)
-  ctx := context.Background()
+  ctx := appengine.NewContext(req)
   u := user.Current(ctx)
   if u == nil {
     url, err := user.LoginURL(ctx, "/")
