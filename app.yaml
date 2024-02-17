@@ -1,6 +1,9 @@
-runtime: python27
+runtime: go120
 api_version: 1
-threadsafe: true
+
+runtime_config:
+  operating_system: "ubuntu22"
+  runtime_version: "1.20"
 
 handlers:
 - url: /nvd3
@@ -13,22 +16,22 @@ handlers:
   static_dir: images
   secure: always
 - url: /
-  script: big-goals-tracker-main.app
+  script: auto
   secure: always
 - url: /old
-  script: big-goals-tracker-main.app
+  script: auto
   secure: always
 - url: /save
-  script: big-goals-tracker-save.app
+  script: auto
   secure: always
 - url: /getold
-  script: big-goals-tracker-save.app
+  script: auto
   secure: always
 - url: /unsubmitted
-  script: big-goals-tracker-save.app
+  script: auto
   secure: always
 - url: /.*
-  script: inexistent.app
+  script: auto
   secure: always
 
 skip_files:
@@ -37,7 +40,3 @@ skip_files:
 - ^semantic/gulpfile.js
 - ^semantic/src/.*
 - ^semantic/tasks/.*
-
-libraries:
-- name: webapp2
-  version: latest
