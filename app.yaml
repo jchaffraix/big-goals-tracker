@@ -1,6 +1,5 @@
 runtime: python312
-api_version: 1
-threadsafe: true
+app_engine_apis: true
 
 handlers:
 - url: /nvd3

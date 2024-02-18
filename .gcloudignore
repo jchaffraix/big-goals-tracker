@@ -1,5 +1,11 @@
-nodes_modules/
-LICENSE
+# Python
+env
+__pycache__nodes_modules/
+*.pyc
+
+# Semantic
 semantic/gulpfile.js
 semantic/src/
 semantic/tasks/
+
+LICENSE
