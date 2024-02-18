@@ -1,10 +1,6 @@
-runtime: go120
-# This is required by the Go code
-app_engine_apis: true
-
-runtime_config:
-  operating_system: "ubuntu22"
-  runtime_version: "1.20"
+runtime: python312
+api_version: 1
+threadsafe: true
 
 handlers:
 - url: /nvd3
@@ -17,20 +13,20 @@ handlers:
   static_dir: images
   secure: always
 - url: /
-  script: auto
+  script: main.app
   secure: always
 - url: /old
-  script: auto
+  script: main.app
   secure: always
 - url: /save
-  script: auto
+  script: save.app
   secure: always
 - url: /getold
-  script: auto
+  script: save.app
   secure: always
 - url: /unsubmitted
-  script: auto
+  script: save.app
   secure: always
 - url: /.*
-  script: auto
+  script: inexistent.app
   secure: always

@@ -2,12 +2,16 @@ import logging
 import hashlib
 import json
 import os
-import webapp2
 
 from authentication import *
 
-from google.appengine.ext import ndb
+from google.cloud import ndb
 from google.appengine.api import users
+
+from flask import Blueprint, redirect, request
+save_pages = Blueprint('save_page', __name__)
+
+ds_client = ndb.Client()
 
 # This class stores the salt associated with a user.
 # While this is not strictly required as we don't store sensitive
@@ -22,20 +26,21 @@ class EmailSalt(ndb.Model):
 
     @classmethod
     def getSalt(cls, user):
+      with ds_client.context():
         existingSalt = cls.query(ancestor = EmailSalt.ancestorKey(user)).fetch(10)
         if len(existingSalt) > 1:
-            raise Exception("Several salts are stored for email" + user + ", data corruption is about to happen.")
+          raise Exception("Several salts are stored for email" + user + ", data corruption is about to happen.")
         elif len(existingSalt) == 0:
-            # We need to create the salt. We use the cryptographically secure os.urandom to do so.
-            # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
-            # So we settled for 32 bits.
-            new_salt = os.urandom(32)
-            existingSalt = EmailSalt(parent = EmailSalt.ancestorKey(user),
-                                     salt = new_salt)
-            existingSalt.put()
-            return new_salt
+          # We need to create the salt. We use the cryptographically secure os.urandom to do so.
+          # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
+          # So we settled for 32 bits.
+          new_salt = os.urandom(32)
+          existingSalt = EmailSalt(parent = EmailSalt.ancestorKey(user),
+                                   salt = new_salt)
+          existingSalt.put()
+          return new_salt
         else:
-            return existingSalt[0].salt
+          return existingSalt[0].salt
 
     @classmethod
     def hashForUser(cls, user):
@@ -68,21 +73,24 @@ class Counts(ndb.Model):
 
     @classmethod
     def getLatestSubmittedEntries(cls, user):
+      with ds_client.context():
         return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == True).order(-cls.updatedDate).fetch(25)
 
     @classmethod
     def getUnsubmittedCount(cls, user):
+      with ds_client.context():
         return cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == False).order(-cls.updatedDate).fetch(10)
 
     @classmethod
     def saveCounts(cls, user, jsonString, shouldSubmit):
+      with ds_client.context():
         # TODO: Do some server side validation on the input.
         parsedJson = json.loads(jsonString)
         #Query a previous instance to be sure.
         unsubmittedCounts = cls.query(ancestor=Counts.ancestorKey(user)).filter(Counts.submitted == False).order(-cls.updatedDate).fetch(10)
         numberOfResults = len(unsubmittedCounts)
         logging.info("Found %d unsubmitted queries" % numberOfResults)
-        if numberOfResults is 0:
+        if numberOfResults == 0:
             counts = Counts(parent = Counts.ancestorKey(user),
                             physicalCount = parsedJson["physicalCount"],
                             wellBeingCount = parsedJson["wellBeingCount"],
@@ -107,62 +115,52 @@ class Counts(ndb.Model):
             counts.put()
 
 
-class SavePage(webapp2.RequestHandler):
-    def post(self):
-        user = Authentication.userIfAllowed()
-        if not user:
-            self.response.status_int = 403
-            return
+@save_pages.route('/save', methods=['POST'])
+def save_page_handler():
+    user = Authentication.userIfAllowed()
+    if not user:
+        abort(403)
 
-        logging.info(self.request.body)
-        # The body is a JSON object containing the counts.
-        shouldSubmit = False;
-        if (self.request.get('submit')):
-            shouldSubmit = True
-        Counts.saveCounts(user, self.request.body, shouldSubmit)
-        self.response.write("Saved")
+    # TODO: Flask discourage calling get_data without looking at Content-Length.
+    body = request.get_data()
+    logging.info(body)
+    # The body is a JSON object containing the counts.
+    shouldSubmit = False;
+    if (request.args.get('submit')):
+        shouldSubmit = True
+    Counts.saveCounts(user, body, shouldSubmit)
+    return "Saved"
 
-class GetUnsubmitted(webapp2.RequestHandler):
-    def get(self):
-        user = Authentication.userIfAllowed()
-        if not user:
-            self.response.status_int = 403
-            return
+@save_pages.route('/unsubmitted')
+def get_unsubmitted_handler():
+    user = Authentication.userIfAllowed()
+    if not user:
+      abort(403)
 
-        unsubmittedCounts = Counts.getUnsubmittedCount(user)
-        if len(unsubmittedCounts) > 1:
-            logging.error("More than one unsubmitted count for "
-                          + Counts.ancestorKey(user))
-        elif len(unsubmittedCounts) == 1:
-            self.response.write(unsubmittedCounts[0].toFullJSON())
+    unsubmittedCounts = Counts.getUnsubmittedCount(user)
+    if len(unsubmittedCounts) > 1:
+      logging.error("More than one unsubmitted count for "
+                    + Counts.ancestorKey(user))
+    elif len(unsubmittedCounts) == 1:
+      # TODO: This doesn't set Content-Type correctly.
+      return unsubmittedCounts[0].toFullJSON()
 
-        # Note that we don't return any value if there is no unsubmitted count.
+    # Note that we don't return any value if there is no unsubmitted count.
 
-class GetOldPage(webapp2.RequestHandler):
-    def get(self):
-        user = Authentication.userIfAllowed()
-        if not user:
-            self.response.status_int = 403
-            return
+@save_pages.route('/getold')
+def get_old_page_handler():
+    user = Authentication.userIfAllowed()
+    if not user:
+      abort(403)
 
-        logging.info("Requesting info for user: %s" % user.email())
-        logs = Counts.getLatestSubmittedEntries(user)
-        if len(logs) is 0:
-            logging.error("Not old data queried.");
-        else:
-            jsonifiedLogs = '{"logs":['
-            for i in range(0, len(logs)):
-                log = logs[i]
-                logging.info(log)
-                jsonifiedLogs += log.toJSONSummary()
-                if i != len(logs) - 1:
-                    jsonifiedLogs += ","
-            jsonifiedLogs += ']}'
-            self.response.write(jsonifiedLogs)
-
-app = webapp2.WSGIApplication([
-    ('/save', SavePage),
-    ('/unsubmitted', GetUnsubmitted),
-    ('/getold', GetOldPage),
-# TODO: Should I switch to debug=False?
-], debug=True)
+    logging.info("Requesting info for user: %s" % user.email())
+    logs = Counts.getLatestSubmittedEntries(user)
+    if len(logs) == 0:
+        logging.error("Not old data queried.");
+    else:
+        summed_logs = []
+        for i in range(0, len(logs)):
+            log = logs[i]
+            logging.info(log)
+            summed_logs += log.toJSONSummary()
+        return {'logs': summed_logs}
