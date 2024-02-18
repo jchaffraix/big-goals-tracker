@@ -26,26 +26,25 @@ class EmailSalt(ndb.Model):
 
     @classmethod
     def getSalt(cls, user):
-      with ds_client.context():
-        existingSalt = cls.query(ancestor = EmailSalt.ancestorKey(user)).fetch(10)
-        if len(existingSalt) > 1:
-          raise Exception("Several salts are stored for email" + user + ", data corruption is about to happen.")
-        elif len(existingSalt) == 0:
-          # We need to create the salt. We use the cryptographically secure os.urandom to do so.
-          # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
-          # So we settled for 32 bits.
-          new_salt = os.urandom(32)
-          existingSalt = EmailSalt(parent = EmailSalt.ancestorKey(user),
-                                   salt = new_salt)
-          existingSalt.put()
-          return new_salt
-        else:
-          return existingSalt[0].salt
+      existingSalt = cls.query(ancestor = EmailSalt.ancestorKey(user)).fetch(10)
+      if len(existingSalt) > 1:
+        raise Exception("Several salts are stored for email" + user + ", data corruption is about to happen.")
+      elif len(existingSalt) == 0:
+        # We need to create the salt. We use the cryptographically secure os.urandom to do so.
+        # Per http://www.jasypt.org/howtoencryptuserpasswords.html, the salt should be at least 8 bits.
+        # So we settled for 32 bits.
+        new_salt = os.urandom(32)
+        existingSalt = EmailSalt(parent = EmailSalt.ancestorKey(user),
+                                 salt = new_salt)
+        existingSalt.put()
+        return new_salt
+      else:
+        return existingSalt[0].salt
 
     @classmethod
     def hashForUser(cls, user):
         salt = EmailSalt.getSalt(user)
-        salted_id = salt + user.user_id()
+        salted_id = salt + user.user_id().encode('utf-8')
         hash_id = hashlib.sha256(salted_id).hexdigest()
         return hash_id
 
@@ -62,10 +61,22 @@ class Counts(ndb.Model):
     submitted = ndb.BooleanProperty()
 
     def toJSONSummary(self):
-        return '{"physicalCount":%d,"wellBeingCount":%d,"moneyCount":%d,"relationshipsCount":%d,"updatedDate":"%s"}' % (len(self.physicalCount), len(self.wellBeingCount), len(self.moneyCount), len(self.relationshipsCount), self.updatedDate)
+        return {
+            "physicalCount": len(self.physicalCount),
+            "wellBeingCount": len(self.wellBeingCount),
+            "moneyCount": len(self.moneyCount),
+            "relationshipsCount": len(self.relationshipsCount),
+            "updatedDate": self.updatedDate,
+          }
 
     def toFullJSON(self):
-        return '{"physicalCount":%s,"wellBeingCount":%s,"moneyCount":%s,"relationshipsCount":%s,"updatedDate":"%s"}' % (str(self.physicalCount), str(self.wellBeingCount), str(self.moneyCount), str(self.relationshipsCount), self.updatedDate)
+        return {
+            "physicalCount": self.physicalCount,
+            "wellBeingCount": self.wellBeingCount,
+            "moneyCount": self.moneyCount,
+            "relationshipsCount": self.relationshipsCount,
+            "updatedDate": self.updatedDate,
+          }
 
     @classmethod
     def ancestorKey(cls, email):
@@ -140,7 +151,7 @@ def get_unsubmitted_handler():
     unsubmittedCounts = Counts.getUnsubmittedCount(user)
     if len(unsubmittedCounts) > 1:
       logging.error("More than one unsubmitted count for "
-                    + Counts.ancestorKey(user))
+                    + user.email())
     elif len(unsubmittedCounts) == 1:
       # TODO: This doesn't set Content-Type correctly.
       return unsubmittedCounts[0].toFullJSON()
@@ -162,5 +173,5 @@ def get_old_page_handler():
         for i in range(0, len(logs)):
             log = logs[i]
             logging.info(log)
-            summed_logs += log.toJSONSummary()
+            summed_logs.append(log.toJSONSummary())
         return {'logs': summed_logs}
