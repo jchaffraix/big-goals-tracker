@@ -1,0 +1,36 @@
+runtime: go120
+# This is required by the Go code
+app_engine_apis: true
+
+runtime_config:
+  operating_system: "ubuntu22"
+  runtime_version: "1.20"
+
+handlers:
+- url: /nvd3
+  static_dir: nvd3
+  secure: always
+- url: /semantic/dist
+  static_dir: semantic/dist
+  secure: always
+- url: /images
+  static_dir: images
+  secure: always
+- url: /
+  script: auto
+  secure: always
+- url: /old
+  script: auto
+  secure: always
+- url: /save
+  script: auto
+  secure: always
+- url: /getold
+  script: auto
+  secure: always
+- url: /unsubmitted
+  script: auto
+  secure: always
+- url: /.*
+  script: auto
+  secure: always
